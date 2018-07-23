@@ -7,7 +7,7 @@ ENV RC_VERSION 0.67.0
 
 WORKDIR /app
 
-ADD ./build/RocketTar.tar.gz .
+ADD RocketTar.tar.gz .
 
 RUN set -x \
  && cd /app/bundle/programs/server \
