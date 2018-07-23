@@ -5,10 +5,7 @@ MAINTAINER buildmaster@rocket.chat
 
 WORKDIR /app
 
-ADD ./build/rocket.chat.tgz .
-
-RUN tar zxvf rocket.chat.tgz \
- && rm rocket.chat.tgz 
+ADD ./build/RocketTar.tar.gz .
 
 RUN set -x \
  && cd /app/bundle/programs/server \
