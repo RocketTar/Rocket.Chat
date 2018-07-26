@@ -3,7 +3,7 @@ FROM rocketchat/base:8
 # crafted and tuned by pierre@ozoux.net and sing.li@rocket.chat
 MAINTAINER buildmaster@rocket.chat
 
-ENV RC_VERSION 0.67.0
+ENV RC_VERSION 0.66.2
 
 WORKDIR /app
 
