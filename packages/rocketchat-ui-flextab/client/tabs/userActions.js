@@ -182,23 +182,6 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 					});
 				}
 			};
-		}, function() {
-			if (!isDirect() || isSelf(this.username)) {
-				return;
-			}
-			if (isBlocker()) {
-				return {
-					icon : 'mic',
-					name:t('Unblock_User'),
-					action: prevent(getUser, ({_id}) => Meteor.call('unblockUser', { rid: Session.get('openedRoom'), blocked: _id }, success(() => toastr.success(t('User_is_unblocked')))))
-				};
-			}
-			return {
-				icon : 'mic',
-				name:t('Block_User'),
-				modifier: 'alert',
-				action: prevent(getUser, ({_id}) => Meteor.call('blockUser', { rid: Session.get('openedRoom'), blocked: _id }, success(() => toastr.success(t('User_is_blocked')))))
-			};
 		}, () => {
 			if (!directActions || !canSetOwner()) {
 				return;

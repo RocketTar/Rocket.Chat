@@ -46,10 +46,10 @@ Template.message.helpers({
 				$ne: ''
 			}
 		}, {
-			fields: {
-				description: 1
-			}
-		});
+				fields: {
+					description: 1
+				}
+			});
 	},
 	isGroupable() {
 		if (Template.instance().room.broadcast || this.groupable === false) {
@@ -79,7 +79,12 @@ Template.message.helpers({
 		if (!this.u) {
 			return '';
 		}
-		return (RocketChat.settings.get('UI_Use_Real_Name') && this.u.name) || this.u.username;
+		
+		// remove slashes from name
+		const splitBySlashes = this.u.name.split("/");
+		const cleanName = splitBySlashes[splitBySlashes.length - 1];
+
+		return (RocketChat.settings.get('UI_Use_Real_Name') && cleanName) || this.u.username;
 	},
 	showUsername() {
 		return this.alias || RocketChat.settings.get('UI_Use_Real_Name') && this.u && this.u.name;
@@ -125,11 +130,11 @@ Template.message.helpers({
 				rid: this.rid,
 				'u._id': Meteor.userId()
 			}, {
-				fields: {
-					autoTranslate: 1,
-					autoTranslateLanguage: 1
-				}
-			});
+					fields: {
+						autoTranslate: 1,
+						autoTranslateLanguage: 1
+					}
+				});
 			const language = RocketChat.AutoTranslate.getLanguage(this.rid);
 			return this.autoTranslateFetching || subscription && subscription.autoTranslate !== this.autoTranslateShowInverse && this.translations && this.translations[language];
 		}
@@ -139,7 +144,7 @@ Template.message.helpers({
 	},
 	editTime() {
 		if (Template.instance().wasEdited) {
-			return moment(this.editedAt).format(`${ RocketChat.settings.get('Message_DateFormat') } ${ RocketChat.settings.get('Message_TimeFormat') }`);
+			return moment(this.editedAt).format(`${RocketChat.settings.get('Message_DateFormat')} ${RocketChat.settings.get('Message_TimeFormat')}`);
 		}
 	},
 	editedBy() {
@@ -212,23 +217,23 @@ Template.message.helpers({
 		}
 
 		// check if oembed is disabled for message's sender
-		if ((RocketChat.settings.get('API_EmbedDisabledFor')||'').split(',').map(username => username.trim()).includes(this.u && this.u.username)) {
+		if ((RocketChat.settings.get('API_EmbedDisabledFor') || '').split(',').map(username => username.trim()).includes(this.u && this.u.username)) {
 			return false;
 		}
 		return true;
 	},
 	reactions() {
 		const userUsername = Meteor.user() && Meteor.user().username;
-		return Object.keys(this.reactions||{}).map(emoji => {
+		return Object.keys(this.reactions || {}).map(emoji => {
 			const reaction = this.reactions[emoji];
 			const total = reaction.usernames.length;
-			let usernames = reaction.usernames.slice(0, 15).map(username => username === userUsername ? t('You').toLowerCase() : `@${ username }`).join(', ');
+			let usernames = reaction.usernames.slice(0, 15).map(username => username === userUsername ? t('You').toLowerCase() : `@${username}`).join(', ');
 			if (total > 15) {
-				usernames = `${ usernames } ${ t('And_more', {
+				usernames = `${usernames} ${t('And_more', {
 					length: total - 15
-				}).toLowerCase() }`;
+				}).toLowerCase()}`;
 			} else {
-				usernames = usernames.replace(/,([^,]+)$/, ` ${ t('and') }$1`);
+				usernames = usernames.replace(/,([^,]+)$/, ` ${t('and')}$1`);
 			}
 			if (usernames[0] !== '@') {
 				usernames = usernames[0].toUpperCase() + usernames.substr(1);
@@ -237,7 +242,7 @@ Template.message.helpers({
 				emoji,
 				count: reaction.usernames.length,
 				usernames,
-				reaction: ` ${ t('Reacted_with').toLowerCase() } ${ emoji }`,
+				reaction: ` ${t('Reacted_with').toLowerCase()} ${emoji}`,
 				userReacted: reaction.usernames.indexOf(userUsername) > -1
 			};
 		});
@@ -256,7 +261,7 @@ Template.message.helpers({
 	},
 	actionLinks() {
 		// remove 'method_id' and 'params' properties
-		return _.map(this.actionLinks, function(actionLink, key) {
+		return _.map(this.actionLinks, function (actionLink, key) {
 			return _.extend({
 				id: key
 			}, _.omit(actionLink, 'method_id', 'params'));
@@ -279,11 +284,11 @@ Template.message.helpers({
 		}
 	},
 	channelName() {
-		const subscription = RocketChat.models.Subscriptions.findOne({rid: this.rid});
+		const subscription = RocketChat.models.Subscriptions.findOne({ rid: this.rid });
 		return subscription && subscription.name;
 	},
 	roomIcon() {
-		const room = Session.get(`roomData${ this.rid }`);
+		const room = Session.get(`roomData${this.rid}`);
 		if (room && room.t === 'd') {
 			return 'at';
 		}
@@ -315,7 +320,7 @@ Template.message.helpers({
 });
 
 
-Template.message.onCreated(function() {
+Template.message.onCreated(function () {
 	let msg = Template.currentData();
 
 	this.wasEdited = (msg.editedAt != null) && !RocketChat.MessageTypes.isSystemMessage(msg);
@@ -323,14 +328,14 @@ Template.message.onCreated(function() {
 	this.room = RocketChat.models.Rooms.findOne({
 		_id: msg.rid
 	}, {
-		fields: {
-			broadcast: 1
-		}
-	});
+			fields: {
+				broadcast: 1
+			}
+		});
 
 	return this.body = (() => {
 		const isSystemMessage = RocketChat.MessageTypes.isSystemMessage(msg);
-		const messageType = RocketChat.MessageTypes.getType(msg)||{};
+		const messageType = RocketChat.MessageTypes.getType(msg) || {};
 		if (messageType.render) {
 			msg = messageType.render(msg);
 		} else if (messageType.template) {
@@ -356,8 +361,8 @@ Template.message.onCreated(function() {
 	})();
 });
 
-Template.message.onViewRendered = function(context) {
-	return this._domrange.onAttached(function(domRange) {
+Template.message.onViewRendered = function (context) {
+	return this._domrange.onAttached(function (domRange) {
 		const currentNode = domRange.lastNode();
 		const currentDataset = currentNode.dataset;
 		const getPreviousSentMessage = (currentNode) => {
@@ -394,7 +399,31 @@ Template.message.onViewRendered = function(context) {
 			} else if (!$currentNode.hasClass('new-day')) {
 				$currentNode.addClass('sequential');
 			}
+
+			const isValidDate = date => !_.isNaN(date.getMinutes());
+
+			const haveDifferentMinutes = (date1, date2) =>
+				date1.getMinutes() !== date2.getMinutes();
+
+			if (isValidDate(previousMessageDate) &&
+				haveDifferentMinutes(previousMessageDate, currentMessageDate)) {
+				$currentNode.find(".time")[0].style.display = "inline";
+			} else {
+				setTimeout(() => {
+					const previousNode = getPreviousSentMessage(currentNode);
+
+					if (!_.isUndefined(previousNode)) {
+						const previousDataset = previousNode.dataset;
+						const previousMessageDate = new Date(parseInt(previousDataset.timestamp));
+
+						if (haveDifferentMinutes(previousMessageDate, currentMessageDate)) {
+							$currentNode.find(".time")[0].style.display = "inline";
+						}
+					}
+				}, 0);
+			}
 		}
+
 		if (nextNode && nextNode.dataset) {
 			const nextDataset = nextNode.dataset;
 			if (nextDataset.date !== currentDataset.date) {
@@ -411,7 +440,7 @@ Template.message.onViewRendered = function(context) {
 			}
 		}
 		if (nextNode == null) {
-			const [el] = $(`#chat-window-${ context.rid }`);
+			const [el] = $(`#chat-window-${context.rid}`);
 			const view = el && Blaze.getView(el);
 			const templateInstance = view && view.templateInstance();
 			if (!templateInstance) {

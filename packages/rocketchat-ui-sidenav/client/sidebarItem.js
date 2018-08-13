@@ -23,6 +23,17 @@ Template.sidebarItem.helpers({
 	},
 	isLivechatQueue() {
 		return this.pathSection === 'livechat-queue';
+	},
+	name() {
+		// Clean name without slashes
+		if (Template.parentData().fname) {
+			const splitBySlashes = Template.parentData().fname.split("/");
+			const cleanFname = splitBySlashes[splitBySlashes.length - 1];
+
+			return RocketChat.settings.get('UI_Use_Real_Name') ? cleanFname : Template.parentData().name;
+		} else {
+			return Template.parentData().name;
+		}
 	}
 });
 
@@ -48,8 +59,8 @@ function setLastMessageTs(instance, ts) {
 	}, 60000);
 }
 
-Template.sidebarItem.onCreated(function() {
-	this.user = RocketChat.models.Users.findOne(Meteor.userId(), {fields: {username: 1}});
+Template.sidebarItem.onCreated(function () {
+	this.user = RocketChat.models.Users.findOne(Meteor.userId(), { fields: { username: 1 } });
 
 	this.lastMessageTs = new ReactiveVar();
 	this.timeAgoInterval;
@@ -74,7 +85,7 @@ Template.sidebarItem.onCreated(function() {
 		if (currentData.t === 'd' && Meteor.userId() !== currentData.lastMessage.u._id) {
 			this.renderedMessage = currentData.lastMessage.msg === '' ? t('Sent_an_attachment') : renderedMessage;
 		} else {
-			this.renderedMessage = currentData.lastMessage.msg === '' ? t('user_sent_an_attachment', {user: sender}) : `${ sender }: ${ renderedMessage }`;
+			this.renderedMessage = currentData.lastMessage.msg === '' ? t('user_sent_an_attachment', { user: sender }) : `${sender}: ${renderedMessage}`;
 		}
 
 		setLastMessageTs(this, currentData.lastMessage.ts);
@@ -100,7 +111,7 @@ Template.sidebarItem.events({
 		e.preventDefault();
 
 		const canLeave = () => {
-			const roomData = Session.get(`roomData${ this.rid }`);
+			const roomData = Session.get(`roomData${this.rid}`);
 
 			if (!roomData) { return false; }
 
@@ -192,7 +203,7 @@ Template.sidebarItemIcon.helpers({
 	},
 	status() {
 		if (this.t === 'd') {
-			return Session.get(`user_${ this.username }_status`) || 'offline';
+			return Session.get(`user_${this.username}_status`) || 'offline';
 		}
 
 		if (this.t === 'l') {
