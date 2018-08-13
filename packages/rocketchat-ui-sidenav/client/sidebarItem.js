@@ -23,17 +23,6 @@ Template.sidebarItem.helpers({
 	},
 	isLivechatQueue() {
 		return this.pathSection === 'livechat-queue';
-	},
-	name() {
-		// Clean name without slashes
-		if (Template.parentData().fname) {
-			const splitBySlashes = Template.parentData().fname.split("/");
-			const cleanFname = splitBySlashes[splitBySlashes.length - 1];
-
-			return RocketChat.settings.get('UI_Use_Real_Name') ? cleanFname : Template.parentData().name;
-		} else {
-			return Template.parentData().name;
-		}
 	}
 });
 
