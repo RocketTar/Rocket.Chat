@@ -400,7 +400,9 @@ Template.message.onViewRendered = function (context) {
 				$currentNode.addClass('sequential');
 			}
 
-			const isValidDate = date => !_.isNaN(date.getMinutes());
+			$currentNode.find(".time")[0].style.display = "inline";
+			
+			/*const isValidDate = date => !_.isNaN(date.getMinutes());
 
 			const haveDifferentMinutes = (date1, date2) =>
 				date1.getMinutes() !== date2.getMinutes();
@@ -421,7 +423,7 @@ Template.message.onViewRendered = function (context) {
 						}
 					}
 				}, 0);
-			}
+			}*/
 		}
 
 		if (nextNode && nextNode.dataset) {
