@@ -24,20 +24,19 @@ Template.sidebarItem.helpers({
 	isLivechatQueue() {
 		return this.pathSection === 'livechat-queue';
 	},
-	cleanName() {
-		const isDirectMessageChat = !Template.parentData().roles;
-
-		if (!isDirectMessageChat) {
-			return false;
+	isDirectMessageChat() {
+		return Template.currentData().route.includes("direct");
+	},
+	directMessageCleanName() {
+		const fname = Template.currentData().fname;
+		
+		if (!fname || !RocketChat.settings.get('UI_Use_Real_Name')) {
+			return Template.currentData().username;
 		} else {
-			if (!Template.parentData().fname || !RocketChat.settings.get('UI_Use_Real_Name')) {
-				return Template.parentData().name;
-			} else {
-				const splitBySlashes = Template.parentData().fname.split("/");
-				const cleanFname = splitBySlashes[splitBySlashes.length - 1];
+			const splitBySlashes = fname.split("/");
+			const cleanFname = splitBySlashes[splitBySlashes.length - 1];
 
-				return cleanFname;
-			}
+			return cleanFname;
 		}
 	}
 });

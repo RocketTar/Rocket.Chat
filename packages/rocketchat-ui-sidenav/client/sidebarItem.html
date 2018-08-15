@@ -37,8 +37,12 @@
 							{{/unless}}
 
 							<div class="sidebar-item__ellipsis">
-								{{#if cleanName}}
-									{{cleanName}}
+								{{#if isRoom}}
+									{{#if isDirectMessageChat}}
+										{{directMessageCleanName}}
+									{{else}}
+										{{name}}
+									{{/if}}
 								{{else}}
 									{{name}}
 								{{/if}}
