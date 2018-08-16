@@ -124,19 +124,32 @@ Template.sidebarItem.events({
 		const canLeave = () => {
 			const roomData = Session.get(`roomData${this.rid}`);
 
-			if (!roomData) { return false; }
+			if (!roomData) {
+				return false;
+			}
 
-			const isChannel = roomData.t === 'c'
-			const hasPermissionToLeaveChannel = RocketChat.authz.hasAtLeastOnePermission('leave-c')
-			if (isChannel && !hasPermissionToLeaveChannel) { return false; }
+			const isChannel = roomData.t === 'c';
+			const hasPermissionToLeaveChannel = RocketChat.authz.hasAtLeastOnePermission('leave-c');
+			if (isChannel && !hasPermissionToLeaveChannel) {
+				return false;
+			}
 
-			const isPrivateChat = roomData.t === 'p'
-			const hasPermissionToLeavePrivateChat = RocketChat.authz.hasAtLeastOnePermission('leave-p')
-			if (isPrivateChat && !hasPermissionToLeavePrivateChat) { return false; }
+			const isPrivateChat = roomData.t === 'p';
+			const hasPermissionToLeavePrivateChat = RocketChat.authz.hasAtLeastOnePermission('leave-p');
+			if (isPrivateChat && !hasPermissionToLeavePrivateChat) {
+				return false;
+			}
 
 			const numberOfMembers = Template.instance().numberOfMembers.get();
 			const isLastMember = numberOfMembers === 1;
-			if (isLastMember) { return false; }
+			if (isLastMember) {
+				return false;
+			}
+
+			const isDirectOrLiveChat = ['d', 'l'].includes(roomData.t);
+			if (isDirectOrLiveChat) {
+				return false;
+			}
 
 			return true;
 			// return !(((roomData.cl != null) && !roomData.cl) || (['d', 'l'].includes(roomData.t)));
