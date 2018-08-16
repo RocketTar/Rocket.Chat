@@ -275,12 +275,16 @@ Template.messageBox.helpers({
 	},
 	dataReply() {
 		const userData = Template.instance().dataReply.get().u;
-		
-		const withoutSlashes = name => name.split("/").pop();
 
-		userData.displayName = RocketChat.settings.get('UI_Use_Real_Name') ?
-			withoutSlashes(userData.name) : userData.username;
-			
+		// Reason for condition is it throws exception if userData is undefined,
+		// but the template HTML handles this fine. The problem is the JS.
+		if (userData) {
+			const cleanName = name => name.split("/").pop();
+
+			userData.displayName = RocketChat.settings.get('UI_Use_Real_Name') ?
+				cleanName(userData.name) : userData.username;
+		}
+
 		return Template.instance().dataReply.get();
 	},
 	isAudioMessageAllowed() {
