@@ -33,8 +33,7 @@ Template.sidebarItem.helpers({
 		if (!fname || !RocketChat.settings.get('UI_Use_Real_Name')) {
 			return Template.currentData().username;
 		} else {
-			const splitBySlashes = fname.split("/");
-			const cleanFname = splitBySlashes[splitBySlashes.length - 1];
+			const cleanFname = fname.split("/").pop();
 
 			return cleanFname;
 		}

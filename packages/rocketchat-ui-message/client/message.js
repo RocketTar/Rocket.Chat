@@ -81,8 +81,7 @@ Template.message.helpers({
 		}
 		
 		// remove slashes from name
-		const splitBySlashes = this.u.name.split("/");
-		const cleanName = splitBySlashes[splitBySlashes.length - 1];
+		const cleanName = this.u.name.split("/").pop();
 
 		return (RocketChat.settings.get('UI_Use_Real_Name') && cleanName) || this.u.username;
 	},
