@@ -1,10 +1,16 @@
 Template.contextualBar.events({
 	'click .js-close'(e, t) {
+		const backButton = document.querySelector(".js-back");
+		
+		if (backButton) {
+			backButton.click()
+		}
+		
 		t.tabBar.close();
 	}
 });
 
-Template.contextualBar.onCreated(function() {
+Template.contextualBar.onCreated(function () {
 	this.tabBar = Template.currentData().tabBar;
 });
 
