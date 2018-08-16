@@ -29,7 +29,7 @@ Template.sidebarItem.helpers({
 	},
 	directMessageCleanName() {
 		const fname = Template.currentData().fname;
-		
+
 		if (!fname || !RocketChat.settings.get('UI_Use_Real_Name')) {
 			return Template.currentData().username;
 		} else {
@@ -68,6 +68,14 @@ Template.sidebarItem.onCreated(function () {
 
 	this.lastMessageTs = new ReactiveVar();
 	this.timeAgoInterval;
+
+	this.numberOfMembers = new ReactiveVar(null);
+
+	const templateInstance = Template.instance();
+
+	Meteor.call('getUsersOfRoom', Template.instance().data.rid, true,
+		(error, users) => templateInstance.numberOfMembers.set(users.total)
+	);
 
 	// console.log('sidebarItem.onCreated');
 
@@ -119,10 +127,20 @@ Template.sidebarItem.events({
 
 			if (!roomData) { return false; }
 
-			if (roomData.t === 'c' && !RocketChat.authz.hasAtLeastOnePermission('leave-c')) { return false; }
-			if (roomData.t === 'p' && !RocketChat.authz.hasAtLeastOnePermission('leave-p')) { return false; }
+			const isChannel = roomData.t === 'c'
+			const hasPermissionToLeaveChannel = RocketChat.authz.hasAtLeastOnePermission('leave-c')
+			if (isChannel && !hasPermissionToLeaveChannel) { return false; }
 
-			return !(((roomData.cl != null) && !roomData.cl) || (['d', 'l'].includes(roomData.t)));
+			const isPrivateChat = roomData.t === 'p'
+			const hasPermissionToLeavePrivateChat = RocketChat.authz.hasAtLeastOnePermission('leave-p')
+			if (isPrivateChat && !hasPermissionToLeavePrivateChat) { return false; }
+
+			const numberOfMembers = Template.instance().numberOfMembers.get();
+			const isLastMember = numberOfMembers === 1;
+			if (isLastMember) { return false; }
+
+			return true;
+			// return !(((roomData.cl != null) && !roomData.cl) || (['d', 'l'].includes(roomData.t)));
 		};
 
 		const canFavorite = RocketChat.settings.get('Favorite_Rooms') && ChatSubscription.find({ rid: this.rid }).count() > 0;

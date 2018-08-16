@@ -745,12 +745,10 @@ Template.channelSettingsInfo.onCreated(function () {
 	this.room = ChatRoom.findOne(this.data && this.data.rid);
 	this.data.numberOfMembers = new ReactiveVar(null);
 
-	const that = this;
+	const templateInstance = Template.instance();
 
 	Meteor.call('getUsersOfRoom', Template.instance().data.rid, true,
-		(error, users) => {
-			that.data.numberOfMembers.set(users.total);
-		}
+		(error, users) => templateInstance.data.numberOfMembers.set(users.total)
 	);
 });
 
