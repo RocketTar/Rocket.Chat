@@ -6,8 +6,10 @@ import { call, erase, hide, leave, RocketChat, RoomSettingsEnum } from 'meteor/r
 
 const common = {
 	canLeaveRoom() {
-		const { cl: canLeave, t: roomType } = Template.instance().room;
-		return roomType !== 'd' && canLeave !== false;
+		const { t: roomType } = Template.instance().room;
+		const numberOfMembers = Template.instance().data.numberOfMembers.get();
+
+		return roomType !== "d" && numberOfMembers !== 1;
 	},
 	canDeleteRoom() {
 		const room = ChatRoom.findOne(this.rid, {
@@ -81,7 +83,7 @@ function roomHasPurge(room) {
 	return roomHasGlobalPurge(room);
 }
 
-function retentionEnabled({t: type}) {
+function retentionEnabled({ t: type }) {
 	switch (type) {
 		case 'c':
 			return RocketChat.settings.get('RetentionPolicy_AppliesToChannels');
@@ -155,7 +157,7 @@ Template.channelSettingsEditing.events({
 			popoverClass: 'notifications-preferences',
 			template: 'pushNotificationsPopover',
 			data: {
-				change : (value) => {
+				change: (value) => {
 					const realValue = value === 'enabled' ? true : value === 'disabled' ? false : undefined;
 					return this.value.set(realValue);
 				},
@@ -182,7 +184,7 @@ Template.channelSettingsEditing.events({
 	}
 });
 
-Template.channelSettingsEditing.onCreated(function() {
+Template.channelSettingsEditing.onCreated(function () {
 	const room = this.room = ChatRoom.findOne(this.data && this.data.rid);
 	this.settings = {
 		name: {
@@ -206,7 +208,7 @@ Template.channelSettingsEditing.onCreated(function() {
 
 				if (!RocketChat.settings.get('UI_Allow_room_names_with_special_chars')) {
 					try {
-						nameValidation = new RegExp(`^${ RocketChat.settings.get('UTF8_Names_Validation') }$`);
+						nameValidation = new RegExp(`^${RocketChat.settings.get('UTF8_Names_Validation')}$`);
 					} catch (error1) {
 						nameValidation = new RegExp('^[0-9a-zA-Z-_.]+$');
 					}
@@ -219,7 +221,7 @@ Template.channelSettingsEditing.onCreated(function() {
 						})));
 					}
 				}
-				return call('saveRoomSettings', room._id, RoomSettingsEnum.NAME, value).then(function() {
+				return call('saveRoomSettings', room._id, RoomSettingsEnum.NAME, value).then(function () {
 					RocketChat.callbacks.run('roomNameChanged', {
 						_id: room._id,
 						name: value
@@ -239,7 +241,7 @@ Template.channelSettingsEditing.onCreated(function() {
 				return RocketChat.authz.hasAllPermission('edit-room', room._id);
 			},
 			save(value) {
-				return call('saveRoomSettings', room._id, RoomSettingsEnum.TOPIC, value).then(function() {
+				return call('saveRoomSettings', room._id, RoomSettingsEnum.TOPIC, value).then(function () {
 					toastr.success(t('Room_topic_changed_successfully'));
 					return RocketChat.callbacks.run('roomTopicChanged', room);
 				});
@@ -274,7 +276,7 @@ Template.channelSettingsEditing.onCreated(function() {
 				return RocketChat.authz.hasAllPermission('edit-room', room._id);
 			},
 			save(value) {
-				return call('saveRoomSettings', room._id, RoomSettingsEnum.DESCRIPTION, value).then(function() {
+				return call('saveRoomSettings', room._id, RoomSettingsEnum.DESCRIPTION, value).then(function () {
 					return toastr.success(t('Room_description_changed_successfully'));
 				});
 			}
@@ -332,7 +334,7 @@ Template.channelSettingsEditing.onCreated(function() {
 								cancelButtonText: t('Cancel'),
 								closeOnConfirm: true,
 								html: false
-							}, function(confirmed) {
+							}, function (confirmed) {
 								if (confirmed) {
 									return resolve(saveRoomSettings());
 								}
@@ -427,7 +429,7 @@ Template.channelSettingsEditing.onCreated(function() {
 						cancelButtonText: t('Cancel'),
 						closeOnConfirm: false,
 						html: false
-					}, function(confirmed) {
+					}, function (confirmed) {
 						if (confirmed) {
 							const action = value ? 'archiveRoom' : 'unarchiveRoom';
 							return resolve(call(action, room._id).then(() => {
@@ -501,7 +503,7 @@ Template.channelSettingsEditing.onCreated(function() {
 				});
 			},
 			save(value) {
-				return call('saveRoomSettings', room._id, 'joinCode', value).then(function() {
+				return call('saveRoomSettings', room._id, 'joinCode', value).then(function () {
 					toastr.success(t('Room_password_changed_successfully'));
 					return RocketChat.callbacks.run('roomCodeChanged', room);
 				});
@@ -691,7 +693,7 @@ Template.channelSettingsEditing.helpers({
 		if (value === undefined) {
 			const text = t(retentionEnabled(Template.instance().room) ? 'enabled' : 'disabled');
 			const _default = t('default');
-			return `${ text } (${ _default })`;
+			return `${text} (${_default})`;
 		}
 		return t(value ? 'enabled' : 'disabled');
 	},
@@ -703,6 +705,7 @@ Template.channelSettingsEditing.helpers({
 		const { room } = Template.instance();
 		return TAPi18n.__(label, { max: roomMaxAgeDefault(room.t) });
 	}
+
 });
 
 Template.channelSettings.helpers({
@@ -711,7 +714,7 @@ Template.channelSettings.helpers({
 	}
 });
 
-Template.channelSettings.onCreated(function() {
+Template.channelSettings.onCreated(function () {
 	this.room = ChatRoom.findOne(this.data && this.data.rid);
 	this.editing = new ReactiveVar(false);
 });
@@ -738,14 +741,23 @@ Template.channelSettings.events({
 	}
 });
 
-Template.channelSettingsInfo.onCreated(function() {
+Template.channelSettingsInfo.onCreated(function () {
 	this.room = ChatRoom.findOne(this.data && this.data.rid);
+	this.data.numberOfMembers = new ReactiveVar(null);
+
+	const that = this;
+
+	Meteor.call('getUsersOfRoom', Template.instance().data.rid, true,
+		(error, users) => {
+			that.data.numberOfMembers.set(users.total);
+		}
+	);
 });
 
 Template.channelSettingsInfo.helpers({
 	...common,
 	channelName() {
-		return `@${ Template.instance().room.name }`;
+		return `@${Template.instance().room.name}`;
 	},
 	archived() {
 		return Template.instance().room.archived;
