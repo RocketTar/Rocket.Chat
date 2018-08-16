@@ -6,6 +6,8 @@ import 'highlight.js/styles/github.css';
 
 hljs.initHighlightingOnLoad();
 
+toastr.options.closeButton = true;
+	
 if (window.DISABLE_ANIMATION) {
 	toastr.options.timeOut = 1;
 	toastr.options.showDuration = 0;
