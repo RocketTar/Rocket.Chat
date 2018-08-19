@@ -56,7 +56,7 @@ Template.flexTabBar.helpers({
 	...commonHelpers,
 	buttons() {
 		return RocketChat.TabBar.getButtons().filter(button =>
-			filterButtons(button, this.anonymous, this.data && this.data.rid)
+			filterButtons(button, Template.instance().anonymous, Template.instance().data && Template.instance().data.rid)
 		);
 	},
 	opened() {
@@ -215,7 +215,7 @@ Template.RoomsActionTab.helpers({
 		if (Template.instance().small.get()) {
 			return [];
 		}
-		const buttons = RocketChat.TabBar.getButtons().filter(button => filterButtons(button, this.anonymous, this.data.rid));
+		const buttons = RocketChat.TabBar.getButtons().filter(button => filterButtons(button, Template.instance().anonymous, Template.instance().data.rid));
 		return buttons.length <= RocketChat.TabBar.size ? buttons : buttons.slice(0, RocketChat.TabBar.size);
 	},
 
@@ -224,7 +224,7 @@ Template.RoomsActionTab.helpers({
 			return true;
 		}
 		const buttons = RocketChat.TabBar.getButtons().filter(button =>
-			filterButtons(button, this.anonymous, this.data.rid)
+			filterButtons(button, Template.instance().anonymous, Template.instance().data.rid)
 		);
 		return buttons.length > RocketChat.TabBar.size;
 	}
