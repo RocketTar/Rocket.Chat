@@ -274,18 +274,21 @@ Template.messageBox.helpers({
 		return RocketChat.getUserPreference(Meteor.user(), 'useEmojis');
 	},
 	dataReply() {
-		const userData = Template.instance().dataReply.get().u;
+		
+		const dataReply = Template.instance().dataReply.get();
 
-		// Reason for condition is it throws exception if userData is undefined,
+		// Reason for condition is it throws exception if dataReply is undefined,
 		// but the template HTML handles this fine. The problem is the JS.
-		if (userData) {
+		if (dataReply && dataReply.u) {
+			const userData = dataReply.u;
+
 			const cleanName = name => name.split("/").pop();
 
 			userData.displayName = RocketChat.settings.get('UI_Use_Real_Name') ?
 				cleanName(userData.name) : userData.username;
 		}
 
-		return Template.instance().dataReply.get();
+		return dataReply;
 	},
 	isAudioMessageAllowed() {
 		return (navigator.getUserMedia || navigator.webkitGetUserMedia ||

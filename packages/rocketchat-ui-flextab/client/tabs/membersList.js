@@ -244,6 +244,7 @@ Template.membersList.events({
 		};
 		e.stopPropagation();
 		popover.open(config);
+		
 	},
 	'autocompleteselect #user-add-search'(event, template, doc) {
 

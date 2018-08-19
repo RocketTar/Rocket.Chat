@@ -73,7 +73,11 @@ Template.sidebarItem.onCreated(function () {
 	const templateInstance = Template.instance();
 
 	Meteor.call('getUsersOfRoom', Template.instance().data.rid, true,
-		(error, users) => templateInstance.numberOfMembers.set(users.total)
+		(error, users) => {
+			if (users) {
+				templateInstance.numberOfMembers.set(users.total);
+			}
+		}
 	);
 
 	// console.log('sidebarItem.onCreated');
