@@ -1,11 +1,5 @@
 Template.contextualBar.events({
 	'click .js-close'(e, t) {
-		const backButton = document.querySelector(".js-back");
-		
-		if (backButton) {
-			backButton.click()
-		}
-		
 		t.tabBar.close();
 	}
 });

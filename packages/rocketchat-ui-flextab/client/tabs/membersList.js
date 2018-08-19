@@ -1,12 +1,12 @@
 /* globals WebRTC popover isRtl */
 import _ from 'underscore';
-import {getActions} from './userActions';
+import { getActions } from './userActions';
 
 Template.membersList.helpers({
 	ignored() {
-		const {user} = this;
-		const sub = RocketChat.models.Subscriptions.findOne({rid: Session.get('openedRoom')});
-		return sub && sub.ignored && sub.ignored.indexOf(user._id) > -1 ? `(${ t('Ignored') })` : '';
+		const { user } = this;
+		const sub = RocketChat.models.Subscriptions.findOne({ rid: Session.get('openedRoom') });
+		return sub && sub.ignored && sub.ignored.indexOf(user._id) > -1 ? `(${t('Ignored')})` : '';
 	},
 	tAddUsers() {
 		return t('Add_users');
@@ -49,7 +49,7 @@ Template.membersList.helpers({
 			users = users.filter(user => reg.test(user.username) || reg.test(user.name));
 		}
 
-		users = users.map(function(user) {
+		users = users.map(function (user) {
 			let utcOffset;
 			if (onlineUsers[user.username] != null) {
 				totalOnline++;
@@ -59,9 +59,9 @@ Template.membersList.helpers({
 					if (utcOffset === userUtcOffset) {
 						utcOffset = '';
 					} else if (utcOffset > 0) {
-						utcOffset = `(UTC +${ utcOffset })`;
+						utcOffset = `(UTC +${utcOffset})`;
 					} else {
-						utcOffset = `(UTC ${ utcOffset })`;
+						utcOffset = `(UTC ${utcOffset})`;
 					}
 				}
 			}
@@ -104,7 +104,7 @@ Template.membersList.helpers({
 	},
 
 	canAddUser() {
-		const roomData = Session.get(`roomData${ this._id }`);
+		const roomData = Session.get(`roomData${this._id}`);
 		if (!roomData) { return ''; }
 		return (() => {
 			return RocketChat.roomTypes.roomTypes[roomData.t].canAddUser(roomData);
@@ -164,7 +164,8 @@ Template.membersList.helpers({
 		}
 
 		return this.user.username;
-	}});
+	}
+});
 
 Template.membersList.events({
 	'click .js-add'() {
@@ -194,28 +195,28 @@ Template.membersList.events({
 	},
 	'click .js-action'(e, instance) {
 		e.currentTarget.parentElement.classList.add('active');
-		const room = Session.get(`roomData${ instance.data.rid }`);
+		const room = Session.get(`roomData${instance.data.rid}`);
 		const _actions = getActions({
 			user: this.user.user,
 			hideAdminControls: RocketChat.roomTypes.roomTypes[room.t].userDetailShowAdmin(room) || false,
 			directActions: RocketChat.roomTypes.roomTypes[room.t].userDetailShowAll(room) || false
-		}).map(action => typeof action === 'function' ? action.call(this): action).filter(action => action && (!action.condition || action.condition.call(this)));
+		}).map(action => typeof action === 'function' ? action.call(this) : action).filter(action => action && (!action.condition || action.condition.call(this)));
 		const groups = [];
 		const columns = [];
 		const admin = _actions.filter(action => action.group === 'admin');
 		const others = _actions.filter(action => !action.group);
 		const channel = _actions.filter(actions => actions.group === 'channel');
 		if (others.length) {
-			groups.push({items:others});
+			groups.push({ items: others });
 		}
 		if (channel.length) {
-			groups.push({items:channel});
+			groups.push({ items: channel });
 		}
 
 		if (admin.length) {
-			groups.push({items:admin});
+			groups.push({ items: admin });
 		}
-		columns[0] = {groups};
+		columns[0] = { groups };
 
 		$(e.currentTarget).blur();
 		e.preventDefault();
@@ -226,8 +227,8 @@ Template.membersList.events({
 				y: e.currentTarget.getBoundingClientRect().bottom + 100
 			}),
 			customCSSProperties: () => ({
-				top:  `${ e.currentTarget.getBoundingClientRect().bottom + 10 }px`,
-				left: isRtl() ? `${ e.currentTarget.getBoundingClientRect().left - 10 }px` : undefined
+				top: `${e.currentTarget.getBoundingClientRect().bottom + 10}px`,
+				left: isRtl() ? `${e.currentTarget.getBoundingClientRect().left - 10}px` : undefined
 			}),
 			data: {
 				rid: this._id,
@@ -237,7 +238,7 @@ Template.membersList.events({
 			offsetHorizontal: 15,
 			activeElement: e.currentTarget,
 			currentTarget: e.currentTarget,
-			onDestroyed:() => {
+			onDestroyed: () => {
 				e.currentTarget.parentElement.classList.remove('active');
 			}
 		};
@@ -246,10 +247,10 @@ Template.membersList.events({
 	},
 	'autocompleteselect #user-add-search'(event, template, doc) {
 
-		const roomData = Session.get(`roomData${ template.data.rid }`);
+		const roomData = Session.get(`roomData${template.data.rid}`);
 
 		if (RocketChat.roomTypes.roomTypes[roomData.t].canAddUser(roomData)) {
-			return Meteor.call('addUserToRoom', { rid: roomData._id, username: doc.username }, function(error) {
+			return Meteor.call('addUserToRoom', { rid: roomData._id, username: doc.username }, function (error) {
 				if (error) {
 					return handleError(error);
 				}
@@ -264,7 +265,11 @@ Template.membersList.events({
 	}
 });
 
-Template.membersList.onCreated(function() {
+const exitUserInfo = () => Template.instance().data.clearUserDetail();
+
+Template.membersList.onCreated(function () {
+	exitUserInfo()
+
 	this.showAllUsers = new ReactiveVar(true);
 	this.usersLimit = new ReactiveVar(100);
 	this.userDetail = new ReactiveVar;
