@@ -4,6 +4,9 @@
 		{{pretext}}
 		<div class="attachment-block">
 			<div class="attachment-block-border background-info-font-color" style="background-color: {{color}}"></div>
+			{{#each attachments}}
+				{{injectIndex . ../index @index}} {{> messageAttachment}}
+			{{/each}}
 			{{#if author_name}}
 				{{#if author_link}}
 					<div class="attachment-author">
@@ -155,9 +158,6 @@
 				{{/if}}
 			{{/unless}}
 
-			{{#each attachments}}
-				{{injectIndex . ../index @index}} {{> messageAttachment}}
-			{{/each}}
 		</div>
 	</div>
 </template>

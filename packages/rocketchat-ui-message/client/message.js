@@ -79,9 +79,9 @@ Template.message.helpers({
 		if (!this.u) {
 			return '';
 		}
-		
+
 		// remove slashes from name
-		const cleanName = this.u.name.split("/").pop();
+		const cleanName = this.u.name ? this.u.name.split("/").pop() : this.u.username
 
 		return (RocketChat.settings.get('UI_Use_Real_Name') && cleanName) || this.u.username;
 	},
@@ -400,7 +400,7 @@ Template.message.onViewRendered = function (context) {
 			}
 
 			$currentNode.find(".time")[0].style.display = "inline";
-			
+
 			/*const isValidDate = date => !_.isNaN(date.getMinutes());
 
 			const haveDifferentMinutes = (date1, date2) =>

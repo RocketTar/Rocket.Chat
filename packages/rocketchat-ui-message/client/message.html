@@ -62,7 +62,7 @@
 			{{#if isSnippet}}
 				<div class="snippet-name">{{_ "Snippet_name"}}: {{snippetName}}</div>
 			{{/if}}
-			{{{body}}}
+			
 			{{#if hasOembed}}
 				{{#each urls}}
 					{{injectIndex . @index}} {{> oembedBaseWidget}}
@@ -71,6 +71,7 @@
 			{{#each attachments}}
 				{{injectIndex . @index}} {{> messageAttachment}}
 			{{/each}}
+			{{{body}}}
 		</div>
 		{{#with readReceipt}}
 		<div class="read-receipt {{readByEveryone}}">
