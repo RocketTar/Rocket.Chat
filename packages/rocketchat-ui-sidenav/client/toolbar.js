@@ -233,6 +233,12 @@ Template.toolbar.events({
 		$('.toolbar').css('display', 'none');
 	},
 
+	'mousedown .toolbar__search .rc-input__icon'(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		toolbarSearch.focus(false);
+	},
+
 	'click [role="search"] button, touchend [role="search"] button'(e) {
 		if (RocketChat.authz.hasAtLeastOnePermission(['create-c', 'create-p'])) {
 			// TODO: resolve this name menu/sidebar/sidebav/flex...
