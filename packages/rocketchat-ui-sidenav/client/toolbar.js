@@ -223,9 +223,11 @@ Template.toolbar.events({
 		toolbarSearch.shortcut = false;
 	},
 
-	'click .toolbar__icon-search--right'() {
+	'mousedown .rc-input__icon--right'(e) {
 		toolbarSearch.clear();
 		$('.toolbar').css('display', 'none');
+		e.preventDefault();
+		e.stopPropagation();
 	},
 
 	'blur [role="search"] input'() {

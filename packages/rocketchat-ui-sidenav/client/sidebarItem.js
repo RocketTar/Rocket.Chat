@@ -69,10 +69,13 @@ Template.sidebarItem.onCreated(function () {
 	this.timeAgoInterval;
 
 	this.numberOfMembers = new ReactiveVar(null);
+	
 
 	const templateInstance = Template.instance();
 
-	Meteor.call('getUsersOfRoom', Template.instance().data.rid, true,
+	if (!templateInstance.data.rid) { return; }
+
+	Meteor.call('getUsersOfRoom', templateInstance.data.rid, true,
 		(error, users) => {
 			if (users) {
 				templateInstance.numberOfMembers.set(users.total);
