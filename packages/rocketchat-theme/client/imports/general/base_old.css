@@ -2947,7 +2947,7 @@
 	line-height: 20px;
 
 	&.highlight {
-		animation: highlight 3s;
+		animation: highlight 6s;
 	}
 
 	&:nth-child(1) {
