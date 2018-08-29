@@ -3,11 +3,11 @@ FROM rocketchat/base:8
 # crafted and tuned by pierre@ozoux.net and sing.li@rocket.chat
 MAINTAINER buildmaster@rocket.chat
 
-ENV RC_VERSION 0.68.4
+ENV RC_VERSION 0.68.4-fixes
 
 WORKDIR /app
 
-ADD RocketTar.tar.gz .
+ADD Rocket.Chat.tar.gz .
 
 RUN set -x \
  && cd /app/bundle/programs/server \
