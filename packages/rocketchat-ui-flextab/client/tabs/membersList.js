@@ -198,9 +198,14 @@ Template.membersList.events({
 		const room = Session.get(`roomData${instance.data.rid}`);
 		const _actions = getActions({
 			user: this.user.user,
-			hideAdminControls: RocketChat.roomTypes.roomTypes[room.t].userDetailShowAdmin(room) || false,
-			directActions: RocketChat.roomTypes.roomTypes[room.t].userDetailShowAll(room) || false
-		}).map(action => typeof action === 'function' ? action.call(this) : action).filter(action => action && (!action.condition || action.condition.call(this)));
+			hideAdminControls: RocketChat.roomTypes
+				.roomTypes[room.t].userDetailShowAdmin(room) || false,
+			directActions: RocketChat.roomTypes
+				.roomTypes[room.t].userDetailShowAll(room) || false
+		}).map(action => typeof action === 'function' ? action.call({ instance }) : action)
+			.filter(action =>
+				action && (!action.condition || action.condition.call(this))
+			);
 		const groups = [];
 		const columns = [];
 		const admin = _actions.filter(action => action.group === 'admin');
@@ -244,7 +249,7 @@ Template.membersList.events({
 		};
 		e.stopPropagation();
 		popover.open(config);
-		
+
 	},
 	'autocompleteselect #user-add-search'(event, template, doc) {
 
@@ -287,10 +292,8 @@ Template.membersList.onCreated(function () {
 			this.users.set(users.records);
 			this.total.set(users.total);
 			return this.loading.set(false);
-		}
-		);
-	}
-	);
+		});
+	});
 
 	this.clearUserDetail = () => {
 		this.showDetail.set(false);
@@ -303,6 +306,16 @@ Template.membersList.onCreated(function () {
 		this.showDetail.set(username != null);
 		return this.userDetail.set(username);
 	};
+
+	this.refreshMembersList = function () {
+		if (this.data.rid == null) { return; }
+		this.loading.set(true);
+		return Meteor.call('getUsersOfRoom', this.data.rid, this.showAllUsers.get(), (error, users) => {
+			this.users.set(users.records);
+			this.total.set(users.total);
+			return this.loading.set(false);
+		});
+	}
 
 	this.clearRoomUserDetail = this.data.clearUserDetail;
 

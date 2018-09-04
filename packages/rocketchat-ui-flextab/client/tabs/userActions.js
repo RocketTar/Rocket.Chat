@@ -3,14 +3,14 @@ import _ from 'underscore';
 import toastr from 'toastr';
 
 
-export const getActions = function({ user, directActions, hideAdminControls }) {
+export const getActions = function ({ user, directActions, hideAdminControls }) {
 
 	const hasPermission = RocketChat.authz.hasAllPermission;
 	const isIgnored = () => {
-		const sub = RocketChat.models.Subscriptions.findOne({rid : Session.get('openedRoom')});
+		const sub = RocketChat.models.Subscriptions.findOne({ rid: Session.get('openedRoom') });
 		return sub && sub.ignored && sub.ignored.indexOf(user._id) > -1;
 	};
-	const canSetLeader= () => {
+	const canSetLeader = () => {
 		return RocketChat.authz.hasAllPermission('set-leader', Session.get('openedRoom'));
 	};
 	const active = () => {
@@ -32,7 +32,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 		return (room != null ? room.t : undefined) === 'd';
 	};
 	const isBlocker = () => {
-		const subscription = ChatSubscription.findOne({rid:Session.get('openedRoom'), 'u._id': Meteor.userId()}, { fields: { blocker: 1 } });
+		const subscription = ChatSubscription.findOne({ rid: Session.get('openedRoom'), 'u._id': Meteor.userId() }, { fields: { blocker: 1 } });
 		return subscription.blocker;
 	};
 	const isLeader = () => {
@@ -78,14 +78,14 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 		return fn.apply(this, [user, ...args]);
 	};
 	const prevent = function prevent(fn, ...args) {
-		return function(e, {instance}) {
+		return function (e, { instance }) {
 			e.stopPropagation();
 			e.preventDefault();
 			return fn.apply(instance, args);
 		};
 	};
 	const success = function success(fn) {
-		return function(error, result) {
+		return function (error, result) {
 			if (error) {
 				return handleError(error);
 			}
@@ -98,7 +98,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 		{
 			icon: 'message',
 			name: t('Conversation'),
-			action: prevent(getUser, ({username}) =>
+			action: prevent(getUser, ({ username }) =>
 				Meteor.call('createDirectMessage', username, success(result => result.rid && FlowRouter.go('direct', { username }, FlowRouter.current().queryParams)))
 			),
 			condition() {
@@ -106,7 +106,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 			}
 		},
 
-		function() {
+		function () {
 			if (isSelf(this.username) || !directActions) {
 				return;
 			}
@@ -115,7 +115,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 				return;
 			}
 			// videoActive
-			const {localUrl, remoteItems} = WebRTC.getInstanceByRoomId(Session.get('openedRoom'));
+			const { localUrl, remoteItems } = WebRTC.getInstanceByRoomId(Session.get('openedRoom'));
 			const r = remoteItems.get() || [];
 			if (localUrl.get() === null && r.length === 0) {
 				return;
@@ -123,7 +123,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 
 			if (WebRTC.getInstanceByRoomId(Session.get('openedRoom')).callInProgress.get()) {
 				return {
-					icon : 'video',
+					icon: 'video',
 					name: t('Join_video_call'),
 					action() {
 						WebRTC.getInstanceByRoomId(Session.get('openedRoom')).joinCall({
@@ -134,7 +134,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 				};
 			}
 			return {
-				icon : 'video',
+				icon: 'video',
 				name: t('Start_video_call'),
 				action() {
 					WebRTC.getInstanceByRoomId(Session.get('openedRoom')).startCall({
@@ -145,7 +145,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 			};
 		},
 
-		function() {
+		function () {
 			if (isSelf(this.username) || !directActions) {
 				return;
 			}
@@ -154,7 +154,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 				return;
 			}
 			// videoActive
-			const {localUrl, remoteItems} = WebRTC.getInstanceByRoomId(Session.get('openedRoom'));
+			const { localUrl, remoteItems } = WebRTC.getInstanceByRoomId(Session.get('openedRoom'));
 			const r = remoteItems.get() || [];
 			if (localUrl.get() === null && r.length === 0) {
 				return;
@@ -162,7 +162,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 
 			if (WebRTC.getInstanceByRoomId(Session.get('openedRoom')).callInProgress.get()) {
 				return {
-					icon : 'mic',
+					icon: 'mic',
 					name: t('Join_audio_call'),
 					action() {
 						WebRTC.getInstanceByRoomId(Session.get('openedRoom')).joinCall({
@@ -173,7 +173,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 				};
 			}
 			return {
-				icon : 'mic',
+				icon: 'mic',
 				name: t('Start_audio_call'),
 				action() {
 					WebRTC.getInstanceByRoomId(Session.get('openedRoom')).startCall({
@@ -189,9 +189,9 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 			if (isOwner()) {
 				return {
 					group: 'channel',
-					name:t('Remove_as_owner'),
+					name: t('Remove_as_owner'),
 					icon: 'shield-check',
-					action: prevent(getUser, ({_id, username})=> {
+					action: prevent(getUser, ({ _id, username }) => {
 						const userOwner = RoomRoles.findOne({ rid: Session.get('openedRoom'), 'u._id': _id, roles: 'owner' }, { fields: { _id: 1 } });
 						if (userOwner == null) {
 							return;
@@ -200,13 +200,14 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 							const room = ChatRoom.findOne(Session.get('openedRoom'));
 							toastr.success(TAPi18n.__('User__username__removed_from__room_name__owners', { username, room_name: room.name }));
 						}));
-					})};
+					})
+				};
 			}
 			return {
 				group: 'channel',
 				name: t('Set_as_owner'),
 				icon: 'shield-check',
-				action: prevent(getUser, ({_id, username}) => {
+				action: prevent(getUser, ({ _id, username }) => {
 					const userOwner = RoomRoles.findOne({ rid: Session.get('openedRoom'), 'u._id': _id, roles: 'owner' }, { fields: { _id: 1 } });
 					if (userOwner != null) {
 						return;
@@ -227,7 +228,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 					group: 'channel',
 					name: t('Remove_as_leader'),
 					icon: 'shield-alt',
-					action: prevent(getUser, ({username, _id}) => {
+					action: prevent(getUser, ({ username, _id }) => {
 						const userLeader = RoomRoles.findOne({ rid: Session.get('openedRoom'), 'u._id': _id, roles: 'leader' }, { fields: { _id: 1 } });
 						if (!userLeader) {
 							return;
@@ -241,9 +242,9 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 			}
 			return {
 				group: 'channel',
-				name:t('Set_as_leader'),
+				name: t('Set_as_leader'),
 				icon: 'shield-alt',
-				action: prevent(getUser, ({_id, username}) => {
+				action: prevent(getUser, ({ _id, username }) => {
 					const userLeader = RoomRoles.findOne({ rid: Session.get('openedRoom'), 'u._id': _id, roles: 'leader' }, { fields: { _id: 1 } });
 					if (userLeader) {
 						return;
@@ -264,12 +265,12 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 					group: 'channel',
 					name: t('Remove_as_moderator'),
 					icon: 'shield',
-					action: prevent(getUser, ({username, _id}) => {
+					action: prevent(getUser, ({ username, _id }) => {
 						const userModerator = RoomRoles.findOne({ rid: Session.get('openedRoom'), 'u._id': _id, roles: 'moderator' }, { fields: { _id: 1 } });
 						if (userModerator == null) {
 							return;
 						}
-						Meteor.call('removeRoomModerator', Session.get('openedRoom'), _id, success(()=> {
+						Meteor.call('removeRoomModerator', Session.get('openedRoom'), _id, success(() => {
 							const room = ChatRoom.findOne(Session.get('openedRoom'));
 							toastr.success(TAPi18n.__('User__username__removed_from__room_name__moderators', { username, room_name: room.name }));
 						}));
@@ -280,7 +281,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 				group: 'channel',
 				name: t('Set_as_moderator'),
 				icon: 'shield',
-				action: prevent(getUser, ({_id, username}) => {
+				action: prevent(getUser, ({ _id, username }) => {
 					const userModerator = RoomRoles.findOne({ rid: Session.get('openedRoom'), 'u._id': _id, roles: 'moderator' }, { fields: { _id: 1 } });
 					if (userModerator != null) {
 						return;
@@ -298,16 +299,16 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 			if (isIgnored()) {
 				return {
 					group: 'channel',
-					icon : 'ban',
+					icon: 'ban',
 					name: t('Unignore'),
-					action: prevent(getUser, ({_id}) => Meteor.call('ignoreUser', { rid: Session.get('openedRoom'), userId:_id, ignore: false}, success(() => toastr.success(t('User_has_been_unignored')))))
+					action: prevent(getUser, ({ _id }) => Meteor.call('ignoreUser', { rid: Session.get('openedRoom'), userId: _id, ignore: false }, success(() => toastr.success(t('User_has_been_unignored')))))
 				};
 			}
 			return {
 				group: 'channel',
-				icon : 'ban',
+				icon: 'ban',
 				name: t('Ignore'),
-				action: prevent(getUser, ({_id}) => Meteor.call('ignoreUser', { rid: Session.get('openedRoom'), userId:_id, ignore: true}, success(() => toastr.success(t('User_has_been_ignored')))))
+				action: prevent(getUser, ({ _id }) => Meteor.call('ignoreUser', { rid: Session.get('openedRoom'), userId: _id, ignore: true }, success(() => toastr.success(t('User_has_been_ignored')))))
 			};
 		}, () => {
 			if (!directActions || !canMuteUser()) {
@@ -316,9 +317,9 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 			if (userMuted()) {
 				return {
 					group: 'channel',
-					icon : 'mic',
+					icon: 'mic',
 					name: t('Unmute_user'),
-					action:prevent(getUser, ({username}) => {
+					action: prevent(getUser, ({ username }) => {
 						const rid = Session.get('openedRoom');
 						if (!RocketChat.authz.hasAllPermission('mute-user', rid)) {
 							return toastr.error(TAPi18n.__('error-not-allowed'));
@@ -329,9 +330,9 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 			}
 			return {
 				group: 'channel',
-				icon : 'mute',
+				icon: 'mute',
 				name: t('Mute_user'),
-				action: prevent(getUser, ({username}) => {
+				action: prevent(getUser, ({ username }) => {
 					const rid = Session.get('openedRoom');
 					const room = ChatRoom.findOne(rid);
 					if (!RocketChat.authz.hasAllPermission('mute-user', rid)) {
@@ -348,15 +349,15 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 						closeOnConfirm: false,
 						html: false
 					}, () =>
-						Meteor.call('muteUserInRoom', { rid, username }, success(() => {
-							modal.open({
-								title: t('Muted'),
-								text: t('User_has_been_muted_in_s', room.name),
-								type: 'success',
-								timer: 2000,
-								showConfirmButton: false
-							});
-						}))
+							Meteor.call('muteUserInRoom', { rid, username }, success(() => {
+								modal.open({
+									title: t('Muted'),
+									text: t('User_has_been_muted_in_s', room.name),
+									type: 'success',
+									timer: 2000,
+									showConfirmButton: false
+								});
+							}))
 					);
 				})
 			};
@@ -365,12 +366,14 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 			icon: 'sign-out',
 			modifier: 'alert',
 			name: t('Remove_from_room'),
-			action: prevent(getUser, user => {
+			action: prevent(getUser, function (user) {
 				const rid = Session.get('openedRoom');
 				const room = ChatRoom.findOne(rid);
 				if (!RocketChat.authz.hasAllPermission('remove-user', rid)) {
 					return toastr.error(TAPi18n.__('error-not-allowed'));
 				}
+				
+				const refreshMembersList = this.refreshMembersList.bind(this);
 				modal.open({
 					title: t('Are_you_sure'),
 					text: t('The_user_will_be_removed_from_s', room.name),
@@ -381,36 +384,38 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 					cancelButtonText: t('Cancel'),
 					closeOnConfirm: false,
 					html: false
-				}, () => {
-					return Meteor.call('removeUserFromRoom', { rid, username: user.username }, success(() => {
-						modal.open({
-							title: t('Removed'),
-							text: t('User_has_been_removed_from_s', room.name),
-							type: 'success',
-							timer: 2000,
-							showConfirmButton: false
+				}, function () {
+					return Meteor.call('removeUserFromRoom',
+						{ rid, username: user.username },
+						function success() {
+							modal.open({
+								title: t('Removed'),
+								text: t('User_has_been_removed_from_s', room.name),
+								type: 'success',
+								timer: 2000,
+								showConfirmButton: false
+							});
+							return refreshMembersList();
 						});
-						return this.instance.clear();
-					}));
 				});
 			}),
 			condition: () => {
 				return directActions && canRemoveUser();
 			}
 		}, {
-			icon : 'edit',
+			icon: 'edit',
 			name: 'Edit',
 			group: 'admin',
 			condition: () => !hideAdminControls && hasPermission('edit-other-user-info'),
-			action: prevent(getUser, function(user) {
+			action: prevent(getUser, function (user) {
 				this.editingUser.set(user._id);
 			})
 		}, {
-			icon : 'trash',
+			icon: 'trash',
 			name: 'Delete',
-			action: prevent(getUser, ({_id}) => {
+			action: prevent(getUser, ({ _id }) => {
 				const erasureType = RocketChat.settings.get('Message_ErasureType');
-				const warningKey = `Delete_User_Warning_${ erasureType }`;
+				const warningKey = `Delete_User_Warning_${erasureType}`;
 
 				modal.open({
 					title: t('Are_you_sure'),
@@ -444,16 +449,16 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 			if (hasAdminRole()) {
 				return {
 					group: 'admin',
-					icon : 'key',
+					icon: 'key',
 					name: t('Remove_Admin'),
-					action: prevent(getUser, ({_id}) => Meteor.call('setAdminStatus', _id, false, success(() => toastr.success(t('User_is_no_longer_an_admin')))))
+					action: prevent(getUser, ({ _id }) => Meteor.call('setAdminStatus', _id, false, success(() => toastr.success(t('User_is_no_longer_an_admin')))))
 				};
 			}
 			return {
 				group: 'admin',
-				icon : 'key',
+				icon: 'key',
 				name: t('Make_Admin'),
-				action: prevent(getUser, ({_id}) => Meteor.call('setAdminStatus', _id, true, success(() => toastr.success(t('User_is_now_an_admin')))))
+				action: prevent(getUser, ({ _id }) => Meteor.call('setAdminStatus', _id, true, success(() => toastr.success(t('User_is_now_an_admin')))))
 			};
 		}, () => {
 			if (hideAdminControls || !hasPermission('edit-other-user-active-status')) {
@@ -462,11 +467,11 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 			if (active()) {
 				return {
 					group: 'admin',
-					icon : 'user',
+					icon: 'user',
 					id: 'deactivate',
 					name: t('Deactivate'),
 					modifier: 'alert',
-					action: prevent(getUser, ({_id}) => Meteor.call('setUserActiveStatus', _id, false, success(() => toastr.success(t('User_has_been_deactivated')))))
+					action: prevent(getUser, ({ _id }) => Meteor.call('setUserActiveStatus', _id, false, success(() => toastr.success(t('User_has_been_deactivated')))))
 				};
 			}
 			return {
@@ -474,7 +479,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 				icon: 'user',
 				id: 'activate',
 				name: t('Activate'),
-				action: prevent(getUser, ({_id}) => Meteor.call('setUserActiveStatus', _id, true, success(() => toastr.success(t('User_has_been_activated')))))
+				action: prevent(getUser, ({ _id }) => Meteor.call('setUserActiveStatus', _id, true, success(() => toastr.success(t('User_has_been_activated')))))
 			};
 		}];
 	return actions;
