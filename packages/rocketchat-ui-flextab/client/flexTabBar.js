@@ -124,13 +124,12 @@ const commonEvents = {
 		const rid = Template.instance().data.data.rid;
 
 		if (this.template === "membersList" && isDirectChat(rid)) {
-			
 			Meteor.call('getUsersOfRoom', rid, true, (error, users) => {
 				const friendInChat = users.records.filter(
 					user => user.username != Meteor.user().username
 				)[0];
 
-				instance
+				friendInChat && instance
 				.view
 				.templateInstance()
 				.data
