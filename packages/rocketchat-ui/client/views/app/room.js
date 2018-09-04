@@ -388,7 +388,8 @@ Template.room.helpers({
 			data: {
 				rid: this._id,
 				userDetail: Template.instance().userDetail.get(),
-				clearUserDetail: Template.instance().clearUserDetail
+				clearUserDetail: Template.instance().clearUserDetail,
+				setUserDetail: Template.instance().setUserDetail
 			}
 		};
 

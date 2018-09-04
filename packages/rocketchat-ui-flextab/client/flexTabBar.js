@@ -78,11 +78,69 @@ Template.flexTabBar.helpers({
 	}
 });
 
+const viewingUserInfo = template => template
+	.instance()
+	.view
+	.templateInstance()
+	.data
+	.data
+	.userDetail;
+
+const exitUserInfo = template => template
+	.instance()
+	.view
+	.templateInstance()
+	.data
+	.data
+	.clearUserDetail();
+
+const isDirectChat = (rid) =>
+	ChatRoom.findOne(rid, { reactive: false }).t === 'd';
+
+const openProfileTab = (e, instance, username) => {
+	const roomData = Session.get(`roomData${Session.get('openedRoom')}`);
+
+	if (RocketChat.Layout.isEmbedded()) {
+		fireGlobalEvent('click-user-card-message', { username });
+		e.preventDefault();
+		e.stopPropagation();
+		return;
+	}
+
+	if (RocketChat.roomTypes.roomTypes[roomData.t].enableMembersListProfile()) {
+		instance.setUserDetail(username);
+	}
+
+	instance.tabBar.setTemplate('membersList');
+	instance.tabBar.open();
+};
+
 const commonEvents = {
 	'click .js-action'(e, instance) {
 		$('button', e.currentTarget).blur();
 		e.preventDefault();
 		const $flexTab = $('.flex-tab-container .flex-tab');
+
+		const rid = Template.instance().data.data.rid;
+
+		if (this.template === "membersList" && isDirectChat(rid)) {
+			
+			Meteor.call('getUsersOfRoom', rid, true, (error, users) => {
+				const friendInChat = users.records.filter(
+					user => user.username != Meteor.user().username
+				)[0];
+
+				instance
+				.view
+				.templateInstance()
+				.data
+				.data.setUserDetail(friendInChat.username);
+			});
+		} else if (this.template === "membersList" &&
+			!isDirectChat(rid) &&
+			viewingUserInfo(Template)) {
+			exitUserInfo(Template);
+		}
 
 		if (instance.tabBar.getState() === 'opened' && instance.tabBar.getTemplate() === this.template) {
 			$flexTab.attr('template', '');
@@ -99,7 +157,7 @@ const commonEvents = {
 		popover.close();
 	}
 };
-const action = function(e, instance) {
+const action = function (e, instance) {
 	$('button', e.currentTarget).blur();
 	e.preventDefault();
 	const $flexTab = $('.flex-tab-container .flex-tab');
@@ -139,7 +197,7 @@ Template.flexTabBar.events({
 	}
 });
 
-Template.flexTabBar.onCreated(function() {
+Template.flexTabBar.onCreated(function () {
 	this.tabBar = Template.currentData().tabBar;
 });
 
@@ -153,7 +211,7 @@ Template.RoomsActionMore.helpers({
 	...commonHelpers
 });
 
-Template.RoomsActionMore.onCreated(function() {
+Template.RoomsActionMore.onCreated(function () {
 	this.tabBar = Template.currentData().tabBar;
 });
 
@@ -163,13 +221,15 @@ Template.RoomsActionTab.events({
 		$(e.currentTarget).blur();
 		e.preventDefault();
 		const buttons = RocketChat.TabBar.getButtons().filter(button => filterButtons(button, instance.anonymous, instance.data.rid));
-		const groups = [{items:(instance.small.get() ? buttons : buttons.slice(RocketChat.TabBar.size)).map(item => {
-			item.name = TAPi18n.__(item.i18nTitle);
-			item.action = action;
-			return item;
-		})}];
+		const groups = [{
+			items: (instance.small.get() ? buttons : buttons.slice(RocketChat.TabBar.size)).map(item => {
+				item.name = TAPi18n.__(item.i18nTitle);
+				item.action = action;
+				return item;
+			})
+		}];
 		const columns = [groups];
-		columns[0] = {groups};
+		columns[0] = { groups };
 		const config = {
 			columns,
 			popoverClass: 'message-box',
@@ -187,10 +247,10 @@ Template.RoomsActionTab.events({
 	}
 });
 
-Template.RoomsActionTab.onDestroyed(function() {
+Template.RoomsActionTab.onDestroyed(function () {
 	$(window).off('resize', this.refresh);
 });
-Template.RoomsActionTab.onCreated(function() {
+Template.RoomsActionTab.onCreated(function () {
 	this.small = new ReactiveVar(window.matchMedia('(max-width: 500px)').matches);
 	this.refresh = _.throttle(() => {
 		this.small.set(window.matchMedia('(max-width: 500px)').matches);
@@ -203,7 +263,7 @@ Template.RoomsActionTab.helpers({
 	...commonHelpers,
 	postButtons() {
 		const toolbar = Session.get('toolbarButtons') || {};
-		return Object.keys(toolbar.buttons || []).map(key =>({ id: key, ...toolbar.buttons[key] }));
+		return Object.keys(toolbar.buttons || []).map(key => ({ id: key, ...toolbar.buttons[key] }));
 	},
 	active() {
 		if (this.template === Template.instance().tabBar.getTemplate() && Template.instance().tabBar.getState() === 'opened') {

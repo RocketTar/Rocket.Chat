@@ -266,11 +266,7 @@ Template.membersList.events({
 	}
 });
 
-const exitUserInfo = () => Template.instance().data.clearUserDetail();
-
 Template.membersList.onCreated(function () {
-	exitUserInfo()
-
 	this.showAllUsers = new ReactiveVar(true);
 	this.usersLimit = new ReactiveVar(100);
 	this.userDetail = new ReactiveVar;

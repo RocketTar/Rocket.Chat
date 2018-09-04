@@ -274,9 +274,8 @@ Template.messageBox.helpers({
 		return RocketChat.getUserPreference(Meteor.user(), 'useEmojis');
 	},
 	dataReply() {
-		
 		const dataReply = Template.instance().dataReply.get();
-console.log(dataReply)
+
 		// Reason for condition is it throws exception if dataReply is undefined,
 		// but the template HTML handles this fine. The problem is the JS.
 		if (dataReply && dataReply.u) {
