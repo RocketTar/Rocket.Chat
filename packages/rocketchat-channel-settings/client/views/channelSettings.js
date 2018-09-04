@@ -184,6 +184,15 @@ Template.channelSettingsEditing.events({
 	}
 });
 
+const filterNames = (old) => {
+	if (RocketChat.settings.get('UI_Allow_room_names_with_special_chars')) {
+		return old;
+	}
+
+	const reg = new RegExp(`^${ RocketChat.settings.get('UTF8_Names_Validation') }$`);
+	return [...old].filter(f => reg.test(f)).join('');
+};
+
 Template.channelSettingsEditing.onCreated(function () {
 	const room = this.room = ChatRoom.findOne(this.data && this.data.rid);
 	this.settings = {
@@ -205,6 +214,8 @@ Template.channelSettingsEditing.onCreated(function () {
 			},
 			save(value) {
 				let nameValidation;
+
+				value = filterNames(value);
 
 				if (!RocketChat.settings.get('UI_Allow_room_names_with_special_chars')) {
 					try {

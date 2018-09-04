@@ -64,13 +64,9 @@ function setLastMessageTs(instance, ts) {
 
 Template.sidebarItem.onCreated(function () {
 	this.user = RocketChat.models.Users.findOne(Meteor.userId(), { fields: { username: 1 } });
-
 	this.lastMessageTs = new ReactiveVar();
 	this.timeAgoInterval;
-
 	this.numberOfMembers = new ReactiveVar(null);
-	
-
 	const templateInstance = Template.instance();
 
 	if (!templateInstance.data.rid) { return; }
@@ -82,8 +78,6 @@ Template.sidebarItem.onCreated(function () {
 			}
 		}
 	);
-
-	// console.log('sidebarItem.onCreated');
 
 	this.autorun(() => {
 		const currentData = Template.currentData();

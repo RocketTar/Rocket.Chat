@@ -3,6 +3,7 @@
 // it is just to improve readability in this file
 
 import _ from 'underscore';
+import s from 'underscore.string';
 import { lazyloadtick } from 'meteor/rocketchat:lazy-load';
 
 const keys = {
@@ -150,10 +151,10 @@ Template.messagePopup.onCreated(function () {
 			event.stopPropagation();
 			return;
 		}
-		const value = template.input.value.substr(0, getCursorPosition(template.input));
+		const value = template.input.value;
 
 		if (template.matchSelectorRegex.test(value)) {
-			template.setTextFilter(value);
+			template.setTextFilter(s.trim(value));
 			template.open.set(true);
 		} else {
 			template.open.set(false);
@@ -172,7 +173,7 @@ Template.messagePopup.onCreated(function () {
 		if (template.open.curValue === true) {
 			return;
 		}
-		const value = template.input.value.substr(0, getCursorPosition(template.input));
+		const value = template.input.value;
 		if (template.matchSelectorRegex.test(value)) {
 			template.setTextFilter(value.match(template.selectorRegex)[1]);
 			template.open.set(true);
