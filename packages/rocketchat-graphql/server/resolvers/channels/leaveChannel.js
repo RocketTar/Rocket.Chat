@@ -13,7 +13,8 @@ const resolver = {
 			});
 
 			if (!channel) {
-				throw new Error('error-room-not-found', 'The required "channelId" param provided does not match any channel');
+				throw new Error('error-room-not-found',
+					'The required "channelId" param provided does not match any channel');
 			}
 
 			Meteor.runAsUser(user._id, () => {

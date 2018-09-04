@@ -99,5 +99,10 @@ export function erase(rid) {
 			timer: 2000,
 			showConfirmButton: false
 		});
+
+		if (['channel', 'group', 'direct'].includes(FlowRouter.getRouteName()) && (Session.get('openedRoom') === rid)) {
+			FlowRouter.go('home');
+		}
+		RoomManager.close(rid);
 	});
 }
