@@ -717,7 +717,7 @@ Template.room.events({
 		const repliedMessageId = this._arguments[1].attachments[0].message_link.split('?msg=')[1];
 		FlowRouter.go(FlowRouter.current().context.pathname, null, { msg: repliedMessageId, hash: Random.id() });
 	},
-	"click .time-link"(e, t) {
+	"click .attachment"() {
 		const repliedMessageId = this._arguments[1].attachments[0].message_link.split('?msg=')[1];
 		const message = { _id: repliedMessageId, rid: Session.get('openedRoom') }
 		RoomHistoryManager.getSurroundingMessages(message);
