@@ -17,7 +17,7 @@
 						{{#if ts}}
 							{{#if message_link}}
 								<span class="time-link">
-									<a href="{{message_link}}" rel="noopener noreferrer">{{time}}</a>
+									<span data-link="{{message_link}}" >{{time}}</span>
 								</span>
 							{{else}}
 								<span class="time">
@@ -35,7 +35,7 @@
 					{{#if ts}}
 						{{#if message_link}}
 							<span class="time-link">
-								{{time}}
+								<span data-link="{{message_link}}" >{{time}}</span>
 							</span>
 						{{else}}
 							<span class="time">

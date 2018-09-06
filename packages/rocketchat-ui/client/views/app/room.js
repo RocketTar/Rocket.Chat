@@ -717,10 +717,16 @@ Template.room.events({
 		const repliedMessageId = this._arguments[1].attachments[0].message_link.split('?msg=')[1];
 		FlowRouter.go(FlowRouter.current().context.pathname, null, { msg: repliedMessageId, hash: Random.id() });
 	},
-	"click .attachment"() {
-		const repliedMessageId = this._arguments[1].attachments[0].message_link.split('?msg=')[1];
+	"click .attachment"(e) {
+		const getRepliedMessageIdFromAttachment = element => {
+			const links = element.querySelectorAll(".time-link span");
+			return links[links.length - 1].getAttribute("data-link").split('?msg=')[1];
+		}
+		
+		const repliedMessageId = getRepliedMessageIdFromAttachment(e.currentTarget);
 		const message = { _id: repliedMessageId, rid: Session.get('openedRoom') }
 		RoomHistoryManager.getSurroundingMessages(message);
+		repliedMessageId && e.stopPropagation();
 	},
 	'click .mention-link'(e, instance) {
 		if (!Meteor.userId()) {
