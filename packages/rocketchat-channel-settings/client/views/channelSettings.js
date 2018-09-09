@@ -121,8 +121,18 @@ function roomMaxAge(room) {
 }
 
 Template.channelSettingsEditing.events({
-	'input .js-input'(e) {
+	'input .js-input:not([name="name"])'(e) {
 		this.value.set(e.currentTarget.value);
+	},
+	'input [name="name"]'(e, t) {
+		const input = e.target;
+		const position = input.selectionEnd || input.selectionStart;
+		const length = input.value.length;
+		const modified = filterNames(input.value);
+
+		input.value = modified;
+		document.activeElement === input && e && /input/i.test(e.type) && (input.selectionEnd = position + input.value.length - length);
+		this.value.set(modified);
 	},
 	'change .js-input-check'(e) {
 		this.value.set(e.currentTarget.checked);
