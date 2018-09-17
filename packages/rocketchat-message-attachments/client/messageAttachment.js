@@ -10,13 +10,21 @@ const colors = {
 Template.messageAttachment.helpers({
 	fixCordova,
 	parsedText() {
-		return renderMessageBody({
-			msg: this.text
-		});
+		console.log("this: ", this)
+
+		// RocketChat.callbacks.run('renderMentions', {html:renderMessageBody({
+		// 	msg: this.text
+		// })})
+
+		return this.html ||
+			renderMessageBody({
+				msg: this.text
+			});
+
 	},
 	loadImage() {
 		if (this.downloadImages !== true) {
-			const user = RocketChat.models.Users.findOne({_id: Meteor.userId()}, {fields: {'settings.autoImageLoad' : 1}});
+			const user = RocketChat.models.Users.findOne({ _id: Meteor.userId() }, { fields: { 'settings.autoImageLoad': 1 } });
 			if (RocketChat.getUserPreference(user, 'autoImageLoad') === false) {
 				return false;
 			}
@@ -56,7 +64,8 @@ Template.messageAttachment.helpers({
 		}
 	},
 	injectIndex(data, previousIndex, index) {
-		data.index = `${ previousIndex }.attachments.${ index }`;
+		console.log({data, previousIndex, index})
+		data.index = `${previousIndex}.attachments.${index}`;
 	},
 
 	isFile() {
