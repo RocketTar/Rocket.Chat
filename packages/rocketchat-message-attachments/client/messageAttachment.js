@@ -10,7 +10,6 @@ const colors = {
 Template.messageAttachment.helpers({
 	fixCordova,
 	parsedText() {
-		console.log("this: ", this)
 
 		// RocketChat.callbacks.run('renderMentions', {html:renderMessageBody({
 		// 	msg: this.text
@@ -64,7 +63,6 @@ Template.messageAttachment.helpers({
 		}
 	},
 	injectIndex(data, previousIndex, index) {
-		console.log({data, previousIndex, index})
 		data.index = `${previousIndex}.attachments.${index}`;
 	},
 
