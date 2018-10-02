@@ -184,7 +184,7 @@ export function syncUserData(user, ldapUser) {
 		if (userData.name || userData.profile.name) {
 			RocketChat._setRealName(user._id, userData.name || userData.profile.name);
 			delete userData.name;
-			delete userData.name ||userData.profile.name ;
+			delete userData.profile.name ;
 		}
 		Meteor.users.update(user._id, { $set: userData });
 		user = Meteor.users.findOne({ _id: user._id });
