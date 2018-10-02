@@ -94,14 +94,14 @@ export function getDataToSyncUserData(ldapUser, user) {
 						emailList.push({ address: ldapUser[ldapField], verified: true });
 					}
 					break;
-					case "name":
-						if (userData.profile === undefined) {
-							userData.profile = {}
-						}
+				case "name":
+					if (userData.profile === undefined) {
+						userData.profile = {}
+					}
 
-						userData.profile.name = ldapUser[ldapField]
+					userData.profile.name = ldapUser[ldapField]
 
-						break;
+					break;
 				default:
 					const [outerKey, innerKeys] = userField.split(/\.(.+)/);
 
@@ -128,7 +128,7 @@ export function getDataToSyncUserData(ldapUser, user) {
 
 					const tmpUserField = getPropertyValue(user, userField);
 					const tmpLdapField = RocketChat.templateVarHandler(ldapField, ldapUser);
-					
+
 					if (tmpLdapField && tmpUserField !== tmpLdapField) {
 						// creates the object structure instead of just assigning 'tmpLdapField' to
 						// 'userData[userField]' in order to avoid the "cannot use the part (...)
@@ -177,11 +177,14 @@ export function syncUserData(user, ldapUser) {
 	logger.debug('ldapUser', ldapUser.object);
 
 	const userData = getDataToSyncUserData(ldapUser, user);
+
 	if (user && user._id && userData) {
 		logger.debug('setting', JSON.stringify(userData, null, 2));
-		if (userData.name) {
-			RocketChat._setRealName(user._id, userData.name);
+
+		if (userData.name || userData.profile.name) {
+			RocketChat._setRealName(user._id, userData.name || userData.profile.name);
 			delete userData.name;
+			delete userData.name ||userData.profile.name ;
 		}
 		Meteor.users.update(user._id, { $set: userData });
 		user = Meteor.users.findOne({ _id: user._id });
@@ -254,7 +257,7 @@ export function addLdapUser(ldapUser, username, password) {
 		userObject.password = password;
 	}
 
-	if(userData.profile!==undefined) {
+	if (userData.profile !== undefined) {
 		userObject.profile = userData.profile
 	}
 
@@ -307,6 +310,9 @@ export function importNewUsers(ldap) {
 
 			// Add user if it was not added before
 			let user = Meteor.users.findOne(userQuery);
+			if (user && username && RocketChat.settings.get('LDAP_Merge_Existing_Users') === true) {
+				syncUserData(user, ldapUser);
+			}
 
 			if (!user && username && RocketChat.settings.get('LDAP_Merge_Existing_Users') === true) {
 				const userQuery = {
