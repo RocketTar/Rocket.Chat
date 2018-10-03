@@ -178,12 +178,12 @@ Template.messagePopup.onCreated(function() {
 		const value = template.input.value;
 
 		if (value[value.length - 1] === "@") {
-			template.isItemSelected.set(false);
+			// template.isItemSelected.set(false);
 		}
 
 		if (
-			template.matchSelectorRegex.test(value) &&
-			!template.isItemSelected.curValue
+			template.matchSelectorRegex.test(value) //&&
+			// !template.isItemSelected.curValue
 		) {
 			template.setTextFilter(value);
 			template.open.set(true);
@@ -206,8 +206,8 @@ Template.messagePopup.onCreated(function() {
 		}
 		const value = template.input.value;
 		if (
-			template.matchSelectorRegex.test(value) &&
-			!template.isItemSelected.curValue
+			template.matchSelectorRegex.test(value) //&&
+			// !template.isItemSelected.curValue
 		) {
 			template.setTextFilter(value.match(template.selectorRegex)[1]);
 			template.open.set(true);
@@ -263,7 +263,7 @@ Template.messagePopup.onCreated(function() {
 				template.prefix + getValue + template.suffix
 			);
 		template.input.value = firstPartValue + lastPartValue;
-		template.isItemSelected.set(true);
+		// template.isItemSelected.set(true);
 
 		return setCursorPosition(template.input, firstPartValue.length);
 	};
