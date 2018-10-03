@@ -186,7 +186,7 @@ Template.messagePopupConfig.helpers({
 			trigger: '@',
 			suffix: ' ',
 			getFilter(collection, filter = '', cb) {
-				const filterText = filter.trim();
+				const filterText = filter
 				const filterRegex = new RegExp(`${ RegExp.escape(filterText) }`, 'i');
 
 				// Get at least 5 users from messages sent on room
@@ -359,7 +359,7 @@ Template.messagePopupConfig.helpers({
 					}
 				}).fetch();
 
-				if (records.length < 5 && filter && filter.trim() !== '') {
+				if (records.length < 5 && filter) {
 					fetchRoomsFromServerDelayed(filter, records, cb, RocketChat.openedRoom);
 				}
 				return records;
