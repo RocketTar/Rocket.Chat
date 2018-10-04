@@ -1,17 +1,17 @@
 /* globals fileUpload KonchatNotification chatMessages popover AudioRecorder chatMessages fileUploadHandler*/
-import toastr from 'toastr';
-import moment from 'moment';
-import _ from 'underscore';
+import toastr from "toastr";
+import moment from "moment";
+import _ from "underscore";
 
 let audioMessageIntervalId;
 
 function katexSyntax() {
 	if (RocketChat.katex.katex_enabled()) {
 		if (RocketChat.katex.dollar_syntax_enabled()) {
-			return '$$KaTeX$$';
+			return "$$KaTeX$$";
 		}
 		if (RocketChat.katex.parenthesis_syntax_enabled()) {
-			return '\\[KaTeX\\]';
+			return "\\[KaTeX\\]";
 		}
 	}
 	return false;
@@ -23,7 +23,7 @@ function applyMd(e, t) {
 	}
 
 	e.preventDefault();
-	const box = t.find('.js-input-message');
+	const box = t.find(".js-input-message");
 	const { selectionEnd = box.value.length, selectionStart = 0 } = box;
 	const initText = box.value.slice(0, selectionStart);
 	const selectedText = box.value.slice(selectionStart, selectionEnd);
@@ -31,21 +31,23 @@ function applyMd(e, t) {
 
 	const [btn] = t.findAll(`.js-md[aria-label=${this.label}]`);
 	if (btn) {
-		btn.classList.add('active');
-		setTimeout(function () {
-			btn.classList.remove('active');
+		btn.classList.add("active");
+		setTimeout(function() {
+			btn.classList.remove("active");
 		}, 100);
 	}
 	box.focus();
 
 	// removes markdown if selected text in inside the same clicked markdown
-	const startPattern = this.pattern.substr(0, this.pattern.indexOf('{{text}}'));
+	const startPattern = this.pattern.substr(0, this.pattern.indexOf("{{text}}"));
 	const startPatternFound = [...startPattern].reverse().every((char, index) => {
 		return box.value.substr(selectionStart - index - 1, 1) === char;
 	});
 
 	if (startPatternFound) {
-		const endPattern = this.pattern.substr(this.pattern.indexOf('{{text}}') + '{{text}}'.length);
+		const endPattern = this.pattern.substr(
+			this.pattern.indexOf("{{text}}") + "{{text}}".length
+		);
 		const endPatternFound = [...endPattern].every((char, index) => {
 			return box.value.substr(selectionEnd + index, 1) === char;
 		});
@@ -54,8 +56,14 @@ function applyMd(e, t) {
 			box.selectionStart = selectionStart - startPattern.length;
 			box.selectionEnd = selectionEnd + endPattern.length;
 
-			if (!document.execCommand || !document.execCommand('insertText', false, selectedText)) {
-				box.value = initText.substr(0, initText.length - startPattern.length) + selectedText + finalText.substr(endPattern.length);
+			if (
+				!document.execCommand ||
+				!document.execCommand("insertText", false, selectedText)
+			) {
+				box.value =
+					initText.substr(0, initText.length - startPattern.length) +
+					selectedText +
+					finalText.substr(endPattern.length);
 			}
 
 			box.selectionStart = selectionStart - startPattern.length;
@@ -70,65 +78,86 @@ function applyMd(e, t) {
 		apply pattern
 		restore selection
 	*/
-	if (!document.execCommand || !document.execCommand('insertText', false, this.pattern.replace('{{text}}', selectedText))) {
-		box.value = initText + this.pattern.replace('{{text}}', selectedText) + finalText;
+	if (
+		!document.execCommand ||
+		!document.execCommand(
+			"insertText",
+			false,
+			this.pattern.replace("{{text}}", selectedText)
+		)
+	) {
+		box.value =
+			initText + this.pattern.replace("{{text}}", selectedText) + finalText;
 	}
 
-	box.selectionStart = selectionStart + this.pattern.indexOf('{{text}}');
+	box.selectionStart = selectionStart + this.pattern.indexOf("{{text}}");
 	box.selectionEnd = box.selectionStart + selectedText.length;
 	$(box).change();
 }
 
-
 const markdownButtons = [
 	{
-		label: 'bold',
-		icon: 'bold',
-		pattern: '*{{text}}*',
-		command: 'b',
-		condition: () => RocketChat.Markdown && RocketChat.settings.get('Markdown_Parser') === 'original'
+		label: "bold",
+		icon: "bold",
+		pattern: "*{{text}}*",
+		command: "b",
+		condition: () =>
+			RocketChat.Markdown &&
+			RocketChat.settings.get("Markdown_Parser") === "original"
 	},
 	{
-		label: 'bold',
-		icon: 'bold',
-		pattern: '**{{text}}**',
-		command: 'b',
-		condition: () => RocketChat.Markdown && RocketChat.settings.get('Markdown_Parser') === 'marked'
+		label: "bold",
+		icon: "bold",
+		pattern: "**{{text}}**",
+		command: "b",
+		condition: () =>
+			RocketChat.Markdown &&
+			RocketChat.settings.get("Markdown_Parser") === "marked"
 	},
 	{
-		label: 'italic',
-		icon: 'italic',
-		pattern: '_{{text}}_',
-		command: 'i',
-		condition: () => RocketChat.Markdown && RocketChat.settings.get('Markdown_Parser') !== 'disabled'
+		label: "italic",
+		icon: "italic",
+		pattern: "_{{text}}_",
+		command: "i",
+		condition: () =>
+			RocketChat.Markdown &&
+			RocketChat.settings.get("Markdown_Parser") !== "disabled"
 	},
 	{
-		label: 'strike',
-		icon: 'strike',
-		pattern: '~{{text}}~',
-		condition: () => RocketChat.Markdown && RocketChat.settings.get('Markdown_Parser') === 'original'
+		label: "strike",
+		icon: "strike",
+		pattern: "~{{text}}~",
+		condition: () =>
+			RocketChat.Markdown &&
+			RocketChat.settings.get("Markdown_Parser") === "original"
 	},
 	{
-		label: 'strike',
-		icon: 'strike',
-		pattern: '~~{{text}}~~',
-		condition: () => RocketChat.Markdown && RocketChat.settings.get('Markdown_Parser') === 'marked'
+		label: "strike",
+		icon: "strike",
+		pattern: "~~{{text}}~~",
+		condition: () =>
+			RocketChat.Markdown &&
+			RocketChat.settings.get("Markdown_Parser") === "marked"
 	},
 	{
-		label: 'inline_code',
-		icon: 'code',
-		pattern: '`{{text}}`',
-		condition: () => RocketChat.Markdown && RocketChat.settings.get('Markdown_Parser') !== 'disabled'
+		label: "inline_code",
+		icon: "code",
+		pattern: "`{{text}}`",
+		condition: () =>
+			RocketChat.Markdown &&
+			RocketChat.settings.get("Markdown_Parser") !== "disabled"
 	},
 	{
-		label: 'multi_line',
-		icon: 'multi-line',
-		pattern: '```\n{{text}}\n``` ',
-		condition: () => RocketChat.Markdown && RocketChat.settings.get('Markdown_Parser') !== 'disabled'
+		label: "multi_line",
+		icon: "multi-line",
+		pattern: "```\n{{text}}\n``` ",
+		condition: () =>
+			RocketChat.Markdown &&
+			RocketChat.settings.get("Markdown_Parser") !== "disabled"
 	},
 	{
 		label: katexSyntax,
-		link: 'https://khan.github.io/KaTeX/function-support.html',
+		link: "https://khan.github.io/KaTeX/function-support.html",
 		condition: () => RocketChat.katex.katex_enabled()
 	}
 ];
@@ -144,28 +173,33 @@ Template.messageBox__actions.helpers(methods);
 Template.messageBox__actionsSmall.helpers(methods);
 Template.messageBox.helpers({
 	mdButtons() {
-		return markdownButtons.filter(button => !button.condition || button.condition());
+		return markdownButtons.filter(
+			button => !button.condition || button.condition()
+		);
 	},
 	roomName() {
 		const roomData = Session.get(`roomData${this._id}`);
 		if (!roomData) {
-			return '';
+			return "";
 		}
-		if (roomData.t === 'd') {
-			const chat = ChatSubscription.findOne({
-				rid: this._id
-			}, {
+		if (roomData.t === "d") {
+			const chat = ChatSubscription.findOne(
+				{
+					rid: this._id
+				},
+				{
 					fields: {
 						name: 1
 					}
-				});
+				}
+			);
 			return chat && chat.name;
 		} else {
 			return roomData.name;
 		}
 	},
 	showFormattingTips() {
-		return RocketChat.settings.get('Message_ShowFormattingTips');
+		return RocketChat.settings.get("Message_ShowFormattingTips");
 	},
 	canJoin() {
 		return Meteor.userId() && RocketChat.roomTypes.verifyShowJoinLink(this._id);
@@ -185,17 +219,23 @@ Template.messageBox.helpers({
 			return false;
 		}
 		const roomData = Session.get(`roomData${this._id}`);
-		if (roomData && roomData.t === 'd') {
-			const subscription = ChatSubscription.findOne({
-				rid: this._id
-			}, {
+		if (roomData && roomData.t === "d") {
+			const subscription = ChatSubscription.findOne(
+				{
+					rid: this._id
+				},
+				{
 					fields: {
 						archived: 1,
 						blocked: 1,
 						blocker: 1
 					}
-				});
-			if (subscription && (subscription.archived || subscription.blocked || subscription.blocker)) {
+				}
+			);
+			if (
+				subscription &&
+				(subscription.archived || subscription.blocked || subscription.blocker)
+			) {
 				return false;
 			}
 		}
@@ -203,15 +243,18 @@ Template.messageBox.helpers({
 	},
 	isBlockedOrBlocker() {
 		const roomData = Session.get(`roomData${this._id}`);
-		if (roomData && roomData.t === 'd') {
-			const subscription = ChatSubscription.findOne({
-				rid: this._id
-			}, {
+		if (roomData && roomData.t === "d") {
+			const subscription = ChatSubscription.findOne(
+				{
+					rid: this._id
+				},
+				{
 					fields: {
 						blocked: 1,
 						blocker: 1
 					}
-				});
+				}
+			);
 			if (subscription && (subscription.blocked || subscription.blocker)) {
 				return true;
 			}
@@ -221,7 +264,7 @@ Template.messageBox.helpers({
 		const template = Template.instance();
 		return {
 			getInput() {
-				return template.find('.js-input-message');
+				return template.find(".js-input-message");
 			}
 		};
 	},
@@ -240,38 +283,45 @@ Template.messageBox.helpers({
 		}
 		let last = users.pop();
 		if (users.length > 4) {
-			last = t('others');
+			last = t("others");
 		}
-		let usernames = users.join(', ');
+		let usernames = users.join(", ");
 		usernames = [usernames, last];
 		return {
 			multi: true,
 			selfTyping: MsgTyping.selfTyping.get(),
-			users: usernames.join(` ${t('and')} `)
+			users: usernames.join(` ${t("and")} `)
 		};
 	},
 	groupAttachHidden() {
-		if (RocketChat.settings.get('Message_Attachments_GroupAttach')) {
-			return 'hidden';
+		if (RocketChat.settings.get("Message_Attachments_GroupAttach")) {
+			return "hidden";
 		}
 	},
 	notSubscribedTpl() {
 		return RocketChat.roomTypes.getNotSubscribedTpl(this._id);
 	},
 	anonymousRead() {
-		return (Meteor.userId() == null) && RocketChat.settings.get('Accounts_AllowAnonymousRead') === true;
+		return (
+			Meteor.userId() == null &&
+			RocketChat.settings.get("Accounts_AllowAnonymousRead") === true
+		);
 	},
 	anonymousWrite() {
-		return (Meteor.userId() == null) && RocketChat.settings.get('Accounts_AllowAnonymousRead') === true && RocketChat.settings.get('Accounts_AllowAnonymousWrite') === true;
+		return (
+			Meteor.userId() == null &&
+			RocketChat.settings.get("Accounts_AllowAnonymousRead") === true &&
+			RocketChat.settings.get("Accounts_AllowAnonymousWrite") === true
+		);
 	},
 	disableSendIcon() {
-		return !Template.instance().sendIcon.get() ? 'disabled' : '';
+		return !Template.instance().sendIcon.get() ? "disabled" : "";
 	},
 	embeddedVersion() {
 		return RocketChat.Layout.isEmbedded();
 	},
 	isEmojiEnable() {
-		return RocketChat.getUserPreference(Meteor.user(), 'useEmojis');
+		return RocketChat.getUserPreference(Meteor.user(), "useEmojis");
 	},
 	dataReply() {
 		const dataReply = Template.instance().dataReply.get();
@@ -283,19 +333,26 @@ Template.messageBox.helpers({
 
 			const cleanName = name => name.split("/").pop();
 
-			userData.displayName = RocketChat.settings.get('UI_Use_Real_Name') ?
-				cleanName(userData.name) : userData.username;
+			userData.displayName = RocketChat.settings.get("UI_Use_Real_Name")
+				? cleanName(userData.name)
+				: userData.username;
 		}
 
 		return dataReply;
 	},
 	isAudioMessageAllowed() {
-		return (navigator.getUserMedia || navigator.webkitGetUserMedia ||
-			navigator.mozGetUserMedia || navigator.msGetUserMedia) &&
-			RocketChat.settings.get('FileUpload_Enabled') &&
-			RocketChat.settings.get('Message_AudioRecorderEnabled') &&
-			(!RocketChat.settings.get('FileUpload_MediaTypeWhiteList') ||
-				RocketChat.settings.get('FileUpload_MediaTypeWhiteList').match(/audio\/mp3|audio\/\*/i));
+		return (
+			(navigator.getUserMedia ||
+				navigator.webkitGetUserMedia ||
+				navigator.mozGetUserMedia ||
+				navigator.msGetUserMedia) &&
+			RocketChat.settings.get("FileUpload_Enabled") &&
+			RocketChat.settings.get("Message_AudioRecorderEnabled") &&
+			(!RocketChat.settings.get("FileUpload_MediaTypeWhiteList") ||
+				RocketChat.settings
+					.get("FileUpload_MediaTypeWhiteList")
+					.match(/audio\/mp3|audio\/\*/i))
+		);
 	}
 });
 
@@ -304,44 +361,51 @@ function firefoxPasteUpload(fn) {
 	if (!user || user[1] > 49) {
 		return fn;
 	}
-	return function (event, instance) {
-		if ((event.originalEvent.ctrlKey || event.originalEvent.metaKey) && (event.keyCode === 86)) {
-			const textarea = instance.find('textarea');
+	return function(event, instance) {
+		if (
+			(event.originalEvent.ctrlKey || event.originalEvent.metaKey) &&
+			event.keyCode === 86
+		) {
+			const textarea = instance.find("textarea");
 			const { selectionStart, selectionEnd } = textarea;
-			const contentEditableDiv = instance.find('#msg_contenteditable');
+			const contentEditableDiv = instance.find("#msg_contenteditable");
 			contentEditableDiv.focus();
-			Meteor.setTimeout(function () {
-				const pastedImg = contentEditableDiv.querySelector('img');
+			Meteor.setTimeout(function() {
+				const pastedImg = contentEditableDiv.querySelector("img");
 				const textareaContent = textarea.value;
 				const startContent = textareaContent.substring(0, selectionStart);
 				const endContent = textareaContent.substring(selectionEnd);
-				const restoreSelection = function (pastedText) {
+				const restoreSelection = function(pastedText) {
 					textarea.value = startContent + pastedText + endContent;
 					textarea.selectionStart = selectionStart + pastedText.length;
-					return textarea.selectionEnd = textarea.selectionStart;
+					return (textarea.selectionEnd = textarea.selectionStart);
 				};
 				if (pastedImg) {
-					contentEditableDiv.innerHTML = '';
+					contentEditableDiv.innerHTML = "";
 				}
 				textarea.focus;
 				if (!pastedImg || contentEditableDiv.innerHTML.length > 0) {
-					return [].slice.call(contentEditableDiv.querySelectorAll('br')).forEach(function (el) {
-						contentEditableDiv.replaceChild(new Text('\n'), el);
-						return restoreSelection(contentEditableDiv.innerText);
-					});
+					return [].slice
+						.call(contentEditableDiv.querySelectorAll("br"))
+						.forEach(function(el) {
+							contentEditableDiv.replaceChild(new Text("\n"), el);
+							return restoreSelection(contentEditableDiv.innerText);
+						});
 				}
-				const imageSrc = pastedImg.getAttribute('src');
+				const imageSrc = pastedImg.getAttribute("src");
 				if (imageSrc.match(/^data:image/)) {
-					return fetch(imageSrc).then(function (img) {
-						return img.blob();
-					}).then(function (blob) {
-						return fileUpload([
-							{
-								file: blob,
-								name: 'Clipboard'
-							}
-						]);
-					});
+					return fetch(imageSrc)
+						.then(function(img) {
+							return img.blob();
+						})
+						.then(function(blob) {
+							return fileUpload([
+								{
+									file: blob,
+									name: "Clipboard"
+								}
+							]);
+						});
 				}
 			}, 150);
 		}
@@ -350,46 +414,66 @@ function firefoxPasteUpload(fn) {
 }
 
 Template.messageBox.events({
-	'click .js-message-actions .rc-popover__item, click .js-message-actions .js-message-action'(event, instance) {
+	"click .js-message-actions .rc-popover__item, click .js-message-actions .js-message-action"(
+		event,
+		instance
+	) {
 		const action = this.action || Template.parentData().action;
-		action.apply(this, [{ rid: Template.parentData()._id, messageBox: instance.find('.rc-message-box'), element: event.currentTarget, event }]);
+		action.apply(this, [
+			{
+				rid: Template.parentData()._id,
+				messageBox: instance.find(".rc-message-box"),
+				element: event.currentTarget,
+				event
+			}
+		]);
 	},
-	'click .join'(event) {
+	"click .join"(event) {
 		event.stopPropagation();
 		event.preventDefault();
-		Meteor.call('joinRoom', this._id, Template.instance().$('[name=joinCode]').val(), (err) => {
-			if (err != null) {
-				toastr.error(t(err.reason));
+		Meteor.call(
+			"joinRoom",
+			this._id,
+			Template.instance()
+				.$("[name=joinCode]")
+				.val(),
+			err => {
+				if (err != null) {
+					toastr.error(t(err.reason));
+				}
+				if (
+					RocketChat.authz.hasAllPermission("preview-c-room") === false &&
+					RoomHistoryManager.getRoom(this._id).loaded === 0
+				) {
+					RoomManager.getOpenedRoomByRid(this._id).streamActive = false;
+					RoomManager.getOpenedRoomByRid(this._id).ready = false;
+					RoomHistoryManager.getRoom(this._id).loaded = null;
+					RoomManager.computation.invalidate();
+				}
 			}
-			if (RocketChat.authz.hasAllPermission('preview-c-room') === false && RoomHistoryManager.getRoom(this._id).loaded === 0) {
-				RoomManager.getOpenedRoomByRid(this._id).streamActive = false;
-				RoomManager.getOpenedRoomByRid(this._id).ready = false;
-				RoomHistoryManager.getRoom(this._id).loaded = null;
-				RoomManager.computation.invalidate();
-			}
-		});
+		);
 	},
 
-	'click .register'(event) {
+	"click .register"(event) {
 		event.stopPropagation();
 		event.preventDefault();
-		return Session.set('forceLogin', true);
+		return Session.set("forceLogin", true);
 	},
-	'click .register-anonymous'(event) {
+	"click .register-anonymous"(event) {
 		event.stopPropagation();
 		event.preventDefault();
-		return Meteor.call('registerUser', {}, function (error, loginData) {
+		return Meteor.call("registerUser", {}, function(error, loginData) {
 			if (loginData && loginData.token) {
 				return Meteor.loginWithToken(loginData.token);
 			}
 		});
 	},
-	'focus .js-input-message'(event, instance) {
+	"focus .js-input-message"(event, instance) {
 		KonchatNotification.removeRoomNotification(this._id);
-		chatMessages[this._id].input = instance.find('.js-input-message');
+		chatMessages[this._id].input = instance.find(".js-input-message");
 	},
-	'click .js-send'(event, instance) {
-		const input = instance.find('.js-input-message');
+	"click .js-send"(event, instance) {
+		const input = instance.find(".js-input-message");
 		chatMessages[this._id].send(this._id, input, () => {
 			// fixes https://github.com/RocketChat/Rocket.Chat/issues/3037
 			// at this point, the input is cleared and ready for autogrow
@@ -398,72 +482,93 @@ Template.messageBox.events({
 			return input.focus();
 		});
 	},
-	'click .cancel-reply'(event, instance) {
-		const input = instance.find('.js-input-message');
+	"click .cancel-reply"(event, instance) {
+		const input = instance.find(".js-input-message");
 		$(input)
 			.focus()
-			.removeData('reply')
-			.trigger('dataChange');
+			.removeData("reply")
+			.trigger("dataChange");
 	},
-	'keyup .js-input-message'(event, instance) {
+	"keyup .js-input-message"(event, instance) {
 		chatMessages[this._id].keyup(this._id, event, instance);
 		return instance.isMessageFieldEmpty.set(chatMessages[this._id].isEmpty());
 	},
-	'paste .js-input-message'(e, instance) {
-		Meteor.setTimeout(function () {
-			const input = instance.find('.js-input-message');
-			return typeof input.updateAutogrow === 'function' && input.updateAutogrow();
+	"paste .js-input-message"(e, instance) {
+		Meteor.setTimeout(function() {
+			const input = instance.find(".js-input-message");
+			return (
+				typeof input.updateAutogrow === "function" && input.updateAutogrow()
+			);
 		}, 50);
 		if (e.originalEvent.clipboardData == null) {
 			return;
 		}
 		const items = [...e.originalEvent.clipboardData.items];
-		const files = items.map(item => {
-			if (item.kind === 'file' && item.type.indexOf('image/') !== -1) {
-				e.preventDefault();
-				return {
-					file: item.getAsFile(),
-					name: `Clipboard - ${moment().format(RocketChat.settings.get('Message_TimeAndDateFormat'))}`
-				};
-			}
-		}).filter(e => e);
+		const files = items
+			.map(item => {
+				if (item.kind === "file" && item.type.indexOf("image/") !== -1) {
+					e.preventDefault();
+					return {
+						file: item.getAsFile(),
+						name: `Clipboard - ${moment().format(
+							RocketChat.settings.get("Message_TimeAndDateFormat")
+						)}`
+					};
+				}
+			})
+			.filter(e => e);
 		if (files.length) {
 			return fileUpload(files);
 		} else {
 			return instance.isMessageFieldEmpty.set(false);
 		}
 	},
-	'keydown .js-input-message': firefoxPasteUpload(function (event, t) {
-		if ((navigator.platform.indexOf('Mac') !== -1 && event.metaKey) || (navigator.platform.indexOf('Mac') === -1 && event.ctrlKey)) {
-			const action = markdownButtons.find(action => action.command === event.key.toLowerCase() && (!action.condition || action.condition()));
+	"keydown .js-input-message": firefoxPasteUpload(function(event, t) {
+		if (
+			(navigator.platform.indexOf("Mac") !== -1 && event.metaKey) ||
+			(navigator.platform.indexOf("Mac") === -1 && event.ctrlKey)
+		) {
+			const action = markdownButtons.find(
+				action =>
+					action.command === event.key.toLowerCase() &&
+					(!action.condition || action.condition())
+			);
 			if (action) {
 				applyMd.apply(action, [event, t]);
 			}
 		}
 		return chatMessages[this._id].keydown(this._id, event, Template.instance());
 	}),
-	'input .js-input-message'(event, instance) {
-		instance.sendIcon.set(event.target.value !== '');
-		return chatMessages[this._id].valueChanged(this._id, event, Template.instance());
+	"input .js-input-message"(event, instance) {
+		instance.sendIcon.set(event.target.value !== "");
+		return chatMessages[this._id].valueChanged(
+			this._id,
+			event,
+			Template.instance()
+		);
 	},
-	'propertychange .js-input-message'(event) {
-		if (event.originalEvent.propertyName === 'value') {
-			return chatMessages[this._id].valueChanged(this._id, event, Template.instance());
+	"propertychange .js-input-message"(event) {
+		if (event.originalEvent.propertyName === "value") {
+			return chatMessages[this._id].valueChanged(
+				this._id,
+				event,
+				Template.instance()
+			);
 		}
 	},
-	'click .editing-commands-cancel > button'() {
+	"click .editing-commands-cancel > button"() {
 		return chatMessages[this._id].clearEditing();
 	},
-	'click .editing-commands-save > button'() {
+	"click .editing-commands-save > button"() {
 		return chatMessages[this._id].send(this._id, chatMessages[this._id].input);
 	},
-	'click .js-md'(e, t) {
+	"click .js-md"(e, t) {
 		applyMd.apply(this, [e, t]);
 	},
-	'click .rc-message-box__action-menu'(e) {
+	"click .rc-message-box__action-menu"(e) {
 		const groups = RocketChat.messageBox.actions.get();
 		const config = {
-			popoverClass: 'message-box',
+			popoverClass: "message-box",
 			columns: [
 				{
 					groups: Object.keys(groups).map(group => {
@@ -472,7 +577,7 @@ Template.messageBox.events({
 							items.push({
 								icon: item.icon,
 								name: t(item.label),
-								type: 'messagebox-action',
+								type: "messagebox-action",
 								id: item.id
 							});
 						});
@@ -484,7 +589,7 @@ Template.messageBox.events({
 				}
 			],
 			offsetVertical: 10,
-			direction: 'top-inverted',
+			direction: "top-inverted",
 			currentTarget: e.currentTarget.firstElementChild.firstElementChild,
 			data: {
 				rid: this._id
@@ -494,39 +599,51 @@ Template.messageBox.events({
 
 		popover.open(config);
 	},
-	'click .js-audio-message-record'(event) {
+	"click .js-audio-message-record"(event) {
 		event.preventDefault();
-		const recording_icons = document.querySelectorAll('.rc-message-box__icon.check, .rc-message-box__icon.cross, .rc-message-box__timer-box');
-		const timer = document.querySelector('.rc-message-box__timer');
-		const mic = document.querySelector('.rc-message-box__icon.mic');
+		const recording_icons = document.querySelectorAll(
+			".rc-message-box__icon.check, .rc-message-box__icon.cross, .rc-message-box__timer-box"
+		);
+		const timer = document.querySelector(".rc-message-box__timer");
+		const mic = document.querySelector(".rc-message-box__icon.mic");
 
 		chatMessages[RocketChat.openedRoom].recording = true;
-		AudioRecorder.start(function () {
-			const startTime = new Date;
-			timer.innerHTML = '00:00';
+		AudioRecorder.start(function() {
+			const startTime = new Date();
+			timer.innerHTML = "00:00";
 			audioMessageIntervalId = setInterval(() => {
-				const now = new Date;
+				const now = new Date();
 				const distance = now - startTime;
 				let minutes = Math.floor(distance / (1000 * 60));
 				let seconds = Math.floor((distance % (1000 * 60)) / 1000);
-				if (minutes < 10) { minutes = `0${minutes}`; }
-				if (seconds < 10) { seconds = `0${seconds}`; }
+				if (minutes < 10) {
+					minutes = `0${minutes}`;
+				}
+				if (seconds < 10) {
+					seconds = `0${seconds}`;
+				}
 				timer.innerHTML = `${minutes}:${seconds}`;
 			}, 1000);
 
-			mic.classList.remove('active');
-			recording_icons.forEach((e) => { e.classList.add('active'); });
+			mic.classList.remove("active");
+			recording_icons.forEach(e => {
+				e.classList.add("active");
+			});
 		});
 	},
-	'click .js-audio-message-cross'(event) {
+	"click .js-audio-message-cross"(event) {
 		event.preventDefault();
-		const timer = document.querySelector('.rc-message-box__timer');
-		const mic = document.querySelector('.rc-message-box__icon.mic');
-		const recording_icons = document.querySelectorAll('.rc-message-box__icon.check, .rc-message-box__icon.cross, .rc-message-box__timer-box');
+		const timer = document.querySelector(".rc-message-box__timer");
+		const mic = document.querySelector(".rc-message-box__icon.mic");
+		const recording_icons = document.querySelectorAll(
+			".rc-message-box__icon.check, .rc-message-box__icon.cross, .rc-message-box__timer-box"
+		);
 
-		recording_icons.forEach((e) => { e.classList.remove('active'); });
-		mic.classList.add('active');
-		timer.innerHTML = '00:00';
+		recording_icons.forEach(e => {
+			e.classList.remove("active");
+		});
+		mic.classList.add("active");
+		timer.innerHTML = "00:00";
 		if (audioMessageIntervalId) {
 			clearInterval(audioMessageIntervalId);
 		}
@@ -534,54 +651,57 @@ Template.messageBox.events({
 		AudioRecorder.stop();
 		chatMessages[RocketChat.openedRoom].recording = false;
 	},
-	'click .js-audio-message-check'(event) {
+	"click .js-audio-message-check"(event) {
 		event.preventDefault();
-		const timer = document.querySelector('.rc-message-box__timer');
-		const mic = document.querySelector('.rc-message-box__icon.mic');
-		const loader = document.querySelector('.js-audio-message-loading');
-		const recording_icons = document.querySelectorAll('.rc-message-box__icon.check, .rc-message-box__icon.cross, .rc-message-box__timer-box');
+		const timer = document.querySelector(".rc-message-box__timer");
+		const mic = document.querySelector(".rc-message-box__icon.mic");
+		const loader = document.querySelector(".js-audio-message-loading");
+		const recording_icons = document.querySelectorAll(
+			".rc-message-box__icon.check, .rc-message-box__icon.cross, .rc-message-box__timer-box"
+		);
 
-		recording_icons.forEach((e) => { e.classList.remove('active'); });
-		loader.classList.add('active');
-		timer.innerHTML = '00:00';
+		recording_icons.forEach(e => {
+			e.classList.remove("active");
+		});
+		loader.classList.add("active");
+		timer.innerHTML = "00:00";
 		if (audioMessageIntervalId) {
 			clearInterval(audioMessageIntervalId);
 		}
 
 		chatMessages[RocketChat.openedRoom].recording = false;
-		AudioRecorder.stop(function (blob) {
-
-			loader.classList.remove('active');
-			mic.classList.add('active');
-			const roomId = Session.get('openedRoom');
+		AudioRecorder.stop(function(blob) {
+			loader.classList.remove("active");
+			mic.classList.add("active");
+			const roomId = Session.get("openedRoom");
 			const record = {
-				name: `${TAPi18n.__('Audio record')}.mp3`,
+				name: `${TAPi18n.__("Audio record")}.mp3`,
 				size: blob.size,
-				type: 'audio/mp3',
+				type: "audio/mp3",
 				rid: roomId,
-				description: ''
+				description: ""
 			};
-			const upload = fileUploadHandler('Uploads', record, blob);
-			let uploading = Session.get('uploading') || [];
+			const upload = fileUploadHandler("Uploads", record, blob);
+			let uploading = Session.get("uploading") || [];
 			uploading.push({
 				id: upload.id,
 				name: upload.getFileName(),
 				percentage: 0
 			});
-			Session.set('uploading', uploading);
-			upload.onProgress = function (progress) {
-				uploading = Session.get('uploading');
+			Session.set("uploading", uploading);
+			upload.onProgress = function(progress) {
+				uploading = Session.get("uploading");
 
 				const item = _.findWhere(uploading, { id: upload.id });
 				if (item != null) {
 					item.percentage = Math.round(progress * 100) || 0;
-					return Session.set('uploading', uploading);
+					return Session.set("uploading", uploading);
 				}
 			};
 
-			upload.start(function (error, file, storage) {
+			upload.start(function(error, file, storage) {
 				if (error) {
-					let uploading = Session.get('uploading');
+					let uploading = Session.get("uploading");
 					if (!Array.isArray(uploading)) {
 						uploading = [];
 					}
@@ -598,47 +718,46 @@ Template.messageBox.events({
 						});
 					}
 
-					Session.set('uploading', uploading);
+					Session.set("uploading", uploading);
 					return;
 				}
 
-
 				if (file) {
-					Meteor.call('sendFileMessage', roomId, storage, file, () => {
+					Meteor.call("sendFileMessage", roomId, storage, file, () => {
 						Meteor.setTimeout(() => {
-							const uploading = Session.get('uploading');
+							const uploading = Session.get("uploading");
 							if (uploading !== null) {
 								const item = _.findWhere(uploading, {
 									id: upload.id
 								});
-								return Session.set('uploading', _.without(uploading, item));
+								return Session.set("uploading", _.without(uploading, item));
 							}
 						}, 2000);
 					});
 				}
 			});
 
-			Tracker.autorun(function (c) {
+			Tracker.autorun(function(c) {
 				const cancel = Session.get(`uploading-cancel-${upload.id}`);
 				if (cancel) {
 					let item;
 					upload.stop();
 					c.stop();
 
-					uploading = Session.get('uploading');
+					uploading = Session.get("uploading");
 					if (uploading != null) {
 						item = _.findWhere(uploading, { id: upload.id });
 						if (item != null) {
 							item.percentage = 0;
 						}
-						Session.set('uploading', uploading);
+						Session.set("uploading", uploading);
 					}
 
-					return Meteor.setTimeout(function () {
-						uploading = Session.get('uploading');
+					return Meteor.setTimeout(function() {
+						uploading = Session.get("uploading");
 						if (uploading != null) {
 							item = _.findWhere(uploading, { id: upload.id });
-							return Session.set('uploading', _.without(uploading, item));
+							return Session.set("uploading", _.without(uploading, item));
 						}
 					}, 1000);
 				}
@@ -648,38 +767,48 @@ Template.messageBox.events({
 	}
 });
 
-Template.messageBox.onRendered(function () {
-	const input = this.find('.js-input-message'); //mssg box
+Template.messageBox.onRendered(function() {
+	const input = this.find(".js-input-message"); //mssg box
 	const self = this;
-	$(input).on('dataChange', () => {
-		const reply = $(input).data('reply');
+	$(input).on("dataChange", () => {
+		const reply = $(input).data("reply");
 		self.dataReply.set(reply);
 	});
-	chatMessages[RocketChat.openedRoom] = chatMessages[RocketChat.openedRoom] || new ChatMessages;
-	chatMessages[RocketChat.openedRoom].input = this.$('.js-input-message').autogrow({
-		animate: true,
-		onInitialize: true
-	}).on('autogrow', () => {
-		this.data && this.data.onResize && this.data.onResize();
-	}).focus()[0];
+	chatMessages[RocketChat.openedRoom] =
+		chatMessages[RocketChat.openedRoom] || new ChatMessages();
+	chatMessages[RocketChat.openedRoom].input = this.$(".js-input-message")
+		.autogrow({
+			animate: true,
+			onInitialize: true
+		})
+		.on("autogrow", () => {
+			this.data && this.data.onResize && this.data.onResize();
+		})
+		.focus()[0];
 });
 
-Template.messageBox.onCreated(function () {
-	this.dataReply = new ReactiveVar(''); //if user is replying to a mssg, this will contain data of the mssg being replied to
+Template.messageBox.onCreated(function() {
+	this.dataReply = new ReactiveVar(""); //if user is replying to a mssg, this will contain data of the mssg being replied to
 	this.isMessageFieldEmpty = new ReactiveVar(true);
 	this.sendIcon = new ReactiveVar(false);
 });
 
-Meteor.startup(function () {
+Meteor.startup(function() {
 	RocketChat.Geolocation = new ReactiveVar(false);
-	Tracker.autorun(function () {
-		const MapView_GMapsAPIKey = RocketChat.settings.get('MapView_GMapsAPIKey');
-		if (RocketChat.settings.get('MapView_Enabled') === true && MapView_GMapsAPIKey && MapView_GMapsAPIKey.length && navigator.geolocation && navigator.geolocation.getCurrentPosition) {
-			const success = (position) => {
+	Tracker.autorun(function() {
+		const MapView_GMapsAPIKey = RocketChat.settings.get("MapView_GMapsAPIKey");
+		if (
+			RocketChat.settings.get("MapView_Enabled") === true &&
+			MapView_GMapsAPIKey &&
+			MapView_GMapsAPIKey.length &&
+			navigator.geolocation &&
+			navigator.geolocation.getCurrentPosition
+		) {
+			const success = position => {
 				return RocketChat.Geolocation.set(position);
 			};
-			const error = (error) => {
-				console.log('Error getting your geolocation', error);
+			const error = error => {
+				console.log("Error getting your geolocation", error);
 				return RocketChat.Geolocation.set(false);
 			};
 			const options = {
@@ -692,7 +821,7 @@ Meteor.startup(function () {
 			return RocketChat.Geolocation.set(false);
 		}
 	});
-	RocketChat.callbacks.add('enter-room', function () {
+	RocketChat.callbacks.add("enter-room", function() {
 		setTimeout(() => {
 			if (chatMessages[RocketChat.openedRoom].input) {
 				chatMessages[RocketChat.openedRoom].input.focus();

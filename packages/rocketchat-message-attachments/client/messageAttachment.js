@@ -1,33 +1,36 @@
-import moment from 'moment';
-import { fixCordova } from 'meteor/rocketchat:lazy-load';
+import moment from "moment";
+import { fixCordova } from "meteor/rocketchat:lazy-load";
 const colors = {
-	good: '#35AC19',
-	warning: '#FCB316',
-	danger: '#D30230'
+	good: "#35AC19",
+	warning: "#FCB316",
+	danger: "#D30230"
 };
 
 /*globals renderMessageBody*/
 Template.messageAttachment.helpers({
 	fixCordova,
 	parsedText() {
-
-		// RocketChat.callbacks.run('renderMentions', {html:renderMessageBody({
-		// 	msg: this.text
-		// })})
-
-		return this.html ||
+		return (
+			this.html ||
 			renderMessageBody({
+				...this,
 				msg: this.text
-			});
-
+			})
+		);
 	},
 	loadImage() {
 		if (this.downloadImages !== true) {
-			const user = RocketChat.models.Users.findOne({ _id: Meteor.userId() }, { fields: { 'settings.autoImageLoad': 1 } });
-			if (RocketChat.getUserPreference(user, 'autoImageLoad') === false) {
+			const user = RocketChat.models.Users.findOne(
+				{ _id: Meteor.userId() },
+				{ fields: { "settings.autoImageLoad": 1 } }
+			);
+			if (RocketChat.getUserPreference(user, "autoImageLoad") === false) {
 				return false;
 			}
-			if (Meteor.Device.isPhone() && RocketChat.getUserPreference(user, 'saveMobileBandwidth') !== true) {
+			if (
+				Meteor.Device.isPhone() &&
+				RocketChat.getUserPreference(user, "saveMobileBandwidth") !== true
+			) {
 				return false;
 			}
 		}
@@ -50,16 +53,22 @@ Template.messageAttachment.helpers({
 			return this.collapsed;
 		} else {
 			const user = Meteor.user();
-			return RocketChat.getUserPreference(user, 'collapseMediaByDefault') === true;
+			return (
+				RocketChat.getUserPreference(user, "collapseMediaByDefault") === true
+			);
 		}
 	},
 	time() {
 		const messageDate = new Date(this.ts);
 		const today = new Date();
 		if (messageDate.toDateString() === today.toDateString()) {
-			return moment(this.ts).format(RocketChat.settings.get('Message_TimeFormat'));
+			return moment(this.ts).format(
+				RocketChat.settings.get("Message_TimeFormat")
+			);
 		} else {
-			return moment(this.ts).format(RocketChat.settings.get('Message_TimeAndDateFormat'));
+			return moment(this.ts).format(
+				RocketChat.settings.get("Message_TimeAndDateFormat")
+			);
 		}
 	},
 	injectIndex(data, previousIndex, index) {
@@ -67,6 +76,6 @@ Template.messageAttachment.helpers({
 	},
 
 	isFile() {
-		return this.type === 'file';
+		return this.type === "file";
 	}
 });

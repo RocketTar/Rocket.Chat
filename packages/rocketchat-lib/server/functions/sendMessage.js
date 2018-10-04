@@ -1,5 +1,5 @@
-const objectMaybeIncluding = (types) => {
-	return Match.Where((value) => {
+const objectMaybeIncluding = types => {
+	return Match.Where(value => {
 		Object.keys(types).forEach(field => {
 			if (value[field] != null) {
 				try {
@@ -16,57 +16,70 @@ const objectMaybeIncluding = (types) => {
 };
 
 const validateAttachmentsFields = attachmentFields => {
-	check(attachmentFields, objectMaybeIncluding({
-		short: Boolean
-	}));
+	check(
+		attachmentFields,
+		objectMaybeIncluding({
+			short: Boolean
+		})
+	);
 
-	check(attachmentFields, objectMaybeIncluding({
-		title: String,
-		value: String
-	}));
+	check(
+		attachmentFields,
+		objectMaybeIncluding({
+			title: String,
+			value: String
+		})
+	);
 };
 
 const validateAttachment = attachment => {
-	check(attachment, objectMaybeIncluding({
-		color: String,
-		text: String,
-		ts: Match.OneOf(String, Match.Integer),
-		thumb_url: String,
-		message_link: String,
-		collapsed: Boolean,
-		author_name: String,
-		author_link: String,
-		author_icon: String,
-		title: String,
-		title_link: String,
-		title_link_download: Boolean,
-		image_url: String,
-		audio_url: String,
-		video_url: String,
-		fields: [Match.Any]
-	}));
+	check(
+		attachment,
+		objectMaybeIncluding({
+			color: String,
+			text: String,
+			ts: Match.OneOf(String, Match.Integer),
+			thumb_url: String,
+			message_link: String,
+			collapsed: Boolean,
+			author_name: String,
+			author_link: String,
+			author_icon: String,
+			title: String,
+			title_link: String,
+			title_link_download: Boolean,
+			image_url: String,
+			audio_url: String,
+			video_url: String,
+			fields: [Match.Any]
+		})
+	);
 
 	if (attachment.fields && attachment.fields.length) {
 		attachment.fields.map(validateAttachmentsFields);
 	}
 };
 
-const validateBodyAttachments = attachments => attachments.map(validateAttachment);
+const validateBodyAttachments = attachments =>
+	attachments.map(validateAttachment);
 
 RocketChat.sendMessage = function(user, message, room, upsert = false) {
 	if (!user || !message || !room._id) {
 		return false;
 	}
 
-	check(message, objectMaybeIncluding({
-		_id: String,
-		msg: String,
-		text: String,
-		alias: String,
-		emoji: String,
-		avatar: String,
-		attachments: [Match.Any]
-	}));
+	check(
+		message,
+		objectMaybeIncluding({
+			_id: String,
+			msg: String,
+			text: String,
+			alias: String,
+			emoji: String,
+			avatar: String,
+			attachments: [Match.Any]
+		})
+	);
 
 	if (Array.isArray(message.attachments) && message.attachments.length) {
 		validateBodyAttachments(message.attachments);
@@ -84,29 +97,44 @@ RocketChat.sendMessage = function(user, message, room, upsert = false) {
 	message.rid = room._id;
 
 	if (!Match.test(message.msg, String)) {
-		message.msg = '';
+		message.msg = "";
 	}
 
 	if (message.ts == null) {
 		message.ts = new Date();
 	}
 
-	if (RocketChat.settings.get('Message_Read_Receipt_Enabled')) {
+	if (RocketChat.settings.get("Message_Read_Receipt_Enabled")) {
 		message.unread = true;
 	}
 
 	// For the Rocket.Chat Apps :)
 	if (message && Apps && Apps.isLoaded()) {
-		const prevent = Promise.await(Apps.getBridges().getListenerBridge().messageEvent('IPreMessageSentPrevent', message));
+		const prevent = Promise.await(
+			Apps.getBridges()
+				.getListenerBridge()
+				.messageEvent("IPreMessageSentPrevent", message)
+		);
 		if (prevent) {
-			throw new Meteor.Error('error-app-prevented-sending', 'A Rocket.Chat App prevented the messaging sending.');
+			throw new Meteor.Error(
+				"error-app-prevented-sending",
+				"A Rocket.Chat App prevented the messaging sending."
+			);
 		}
 
 		let result;
-		result = Promise.await(Apps.getBridges().getListenerBridge().messageEvent('IPreMessageSentExtend', message));
-		result = Promise.await(Apps.getBridges().getListenerBridge().messageEvent('IPreMessageSentModify', result));
+		result = Promise.await(
+			Apps.getBridges()
+				.getListenerBridge()
+				.messageEvent("IPreMessageSentExtend", message)
+		);
+		result = Promise.await(
+			Apps.getBridges()
+				.getListenerBridge()
+				.messageEvent("IPreMessageSentModify", result)
+		);
 
-		if (typeof result === 'object') {
+		if (typeof result === "object") {
 			message = Object.assign(message, result);
 		}
 	}
@@ -115,9 +143,11 @@ RocketChat.sendMessage = function(user, message, room, upsert = false) {
 		message.html = message.msg;
 		message = RocketChat.Markdown.code(message);
 
-		const urls = message.html.match(/([A-Za-z]{3,9}):\/\/([-;:&=\+\$,\w]+@{1})?([-A-Za-z0-9\.]+)+:?(\d+)?((\/[-\+=!:~%\/\.@\,\(\)\w]*)?\??([-\+=&!:;%@\/\.\,\w]+)?(?:#([^\s\)]+))?)?/g);
+		const urls = message.html.match(
+			/([A-Za-z]{3,9}):\/\/([-;:&=\+\$,\w]+@{1})?([-A-Za-z0-9\.]+)+:?(\d+)?((\/[-\+=!:~%\/\.@\,\(\)\w]*)?\??([-\+=&!:;%@\/\.\,\w]+)?(?:#([^\s\)]+))?)?/g
+		);
 		if (urls) {
-			message.urls = urls.map((url) => ({ url }));
+			message.urls = urls.map(url => ({ url }));
 		}
 
 		message = RocketChat.Markdown.mountTokensBack(message, false);
@@ -126,7 +156,7 @@ RocketChat.sendMessage = function(user, message, room, upsert = false) {
 		delete message.tokens;
 	}
 
-	message = RocketChat.callbacks.run('beforeSaveMessage', message);
+	message = RocketChat.callbacks.run("beforeSaveMessage", message);
 	if (message) {
 		// Avoid saving sandstormSessionId to the database
 		let sandstormSessionId = null;
@@ -138,10 +168,13 @@ RocketChat.sendMessage = function(user, message, room, upsert = false) {
 		if (message._id && upsert) {
 			const _id = message._id;
 			delete message._id;
-			RocketChat.models.Messages.upsert({
-				_id,
-				'u._id': message.u._id
-			}, message);
+			RocketChat.models.Messages.upsert(
+				{
+					_id,
+					"u._id": message.u._id
+				},
+				message
+			);
 			message._id = _id;
 		} else {
 			message._id = RocketChat.models.Messages.insert(message);
@@ -150,7 +183,9 @@ RocketChat.sendMessage = function(user, message, room, upsert = false) {
 		if (Apps && Apps.isLoaded()) {
 			// This returns a promise, but it won't mutate anything about the message
 			// so, we don't really care if it is successful or fails
-			Apps.getBridges().getListenerBridge().messageEvent('IPostMessageSent', message);
+			Apps.getBridges()
+				.getListenerBridge()
+				.messageEvent("IPostMessageSent", message);
 		}
 
 		/*
@@ -159,7 +194,12 @@ RocketChat.sendMessage = function(user, message, room, upsert = false) {
 		Meteor.defer(() => {
 			// Execute all callbacks
 			message.sandstormSessionId = sandstormSessionId;
-			return RocketChat.callbacks.run('afterSaveMessage', message, room, user._id);
+			return RocketChat.callbacks.run(
+				"afterSaveMessage",
+				message,
+				room,
+				user._id
+			);
 		});
 		return message;
 	}
