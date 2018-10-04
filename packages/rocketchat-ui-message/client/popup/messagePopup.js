@@ -224,7 +224,7 @@ Template.messagePopup.onCreated(function() {
 		}
 		const value = template.input.value;
 		const caret = getCursorPosition(template.input);
-		let firstPartValue = value.substr(0, caret);
+		let firstPartValue = value.substr(0, caret) || "";
 		const lastPartValue = value.substr(caret);
 		const getValue = this.getValue(
 			template.value.curValue,
@@ -262,28 +262,30 @@ Template.messagePopup.onCreated(function() {
 		}
 
 		const textFilter = template.textFilter.get();
-		const triggerIndex = textFilter.lastIndexOf(template.trigger);
-		const filter = textFilter.substring(
-			triggerIndex,
-			getCursorPosition(textFilter)
-		);
-
-		if (filter != null) {
-			const filterCallback = result => {
-				template.hasData.set(result && result.length > 0);
-				template.records.set(result);
-				return Meteor.defer(function() {
-					return template.verifySelection();
-				});
-			};
-
-			const result = template.data.getFilter(
-				template.data.collection,
-				filter,
-				filterCallback
+		if (textFilter) {
+			const triggerIndex = textFilter.lastIndexOf(template.trigger);
+			const filter = textFilter.substring(
+				triggerIndex,
+				getCursorPosition(textFilter)
 			);
-			if (result != null) {
-				return filterCallback(result);
+
+			if (filter != null) {
+				const filterCallback = result => {
+					template.hasData.set(result && result.length > 0);
+					template.records.set(result);
+					return Meteor.defer(function() {
+						return template.verifySelection();
+					});
+				};
+
+				const result = template.data.getFilter(
+					template.data.collection,
+					filter,
+					filterCallback
+				);
+				if (result != null) {
+					return filterCallback(result);
+				}
 			}
 		}
 	});

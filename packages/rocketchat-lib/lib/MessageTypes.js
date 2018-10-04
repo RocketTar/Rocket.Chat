@@ -4,7 +4,7 @@ RocketChat.MessageTypes = new class {
 	}
 
 	registerType(options) {
-		return this.types[options.id] = options;
+		return (this.types[options.id] = options);
 	}
 
 	getType(message) {
@@ -15,154 +15,192 @@ RocketChat.MessageTypes = new class {
 		const type = this.types[message && message.t];
 		return type && type.system;
 	}
+}();
 
-};
-
-Meteor.startup(function () {
-	const cleanName = name => name.split("/").pop();
+Meteor.startup(function() {
+	const cleanName = name => name && name.split("/").pop();
 
 	RocketChat.MessageTypes.registerType({
-		id: 'r',
+		id: "r",
 		system: true,
-		message: 'Room_name_changed',
+		message: "Room_name_changed",
 		data(message) {
 			return {
 				room_name: message.msg,
-				user_by: (RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				user_by:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'au',
+		id: "au",
 		system: true,
-		message: 'User_added_by',
+		message: "User_added_by",
 		data(message) {
 			return {
 				user_added: message.msg,
-				user_by: (RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				user_by:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'ru',
+		id: "ru",
 		system: true,
-		message: 'User_removed_by',
+		message: "User_removed_by",
 		data(message) {
 			return {
 				user_removed: message.msg,
-				user_by:(RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				user_by:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'ul',
+		id: "ul",
 		system: true,
-		message: 'User_left',
+		message: "User_left",
 		data(message) {
 			return {
-				user_left: (RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				user_left:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'uj',
+		id: "uj",
 		system: true,
-		message: 'User_joined_channel',
+		message: "User_joined_channel",
 		data(message) {
 			return {
-				user: (RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				user:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'wm',
+		id: "wm",
 		system: true,
-		message: 'Welcome',
+		message: "Welcome",
 		data(message) {
 			return {
-				user:(RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				user:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'rm',
+		id: "rm",
 		system: true,
-		message: 'Message_removed',
+		message: "Message_removed",
 		data(message) {
 			return {
-				user:(RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				user:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'rtc',
+		id: "rtc",
 		render(message) {
-			return RocketChat.callbacks.run('renderRtcMessage', message);
+			return RocketChat.callbacks.run("renderRtcMessage", message);
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'user-muted',
+		id: "user-muted",
 		system: true,
-		message: 'User_muted_by',
+		message: "User_muted_by",
 		data(message) {
 			return {
 				user_muted: message.msg,
-				user_by:(RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				user_by:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'user-unmuted',
+		id: "user-unmuted",
 		system: true,
-		message: 'User_unmuted_by',
+		message: "User_unmuted_by",
 		data(message) {
 			return {
 				user_unmuted: message.msg,
-				user_by: (RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				user_by:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'subscription-role-added',
+		id: "subscription-role-added",
 		system: true,
-		message: '__username__was_set__role__by__user_by_',
+		message: "__username__was_set__role__by__user_by_",
 		data(message) {
 			return {
 				username: message.msg,
 				role: message.role,
-				user_by: (RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				user_by:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'subscription-role-removed',
+		id: "subscription-role-removed",
 		system: true,
-		message: '__username__is_no_longer__role__defined_by__user_by_',
+		message: "__username__is_no_longer__role__defined_by__user_by_",
 		data(message) {
 			return {
 				username: message.msg,
 				role: message.role,
-				user_by: (RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				user_by:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'room-archived',
+		id: "room-archived",
 		system: true,
-		message: 'This_room_has_been_archived_by__username_',
+		message: "This_room_has_been_archived_by__username_",
 		data(message) {
 			return {
-				username: (RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				username:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
 	RocketChat.MessageTypes.registerType({
-		id: 'room-unarchived',
+		id: "room-unarchived",
 		system: true,
-		message: 'This_room_has_been_unarchived_by__username_',
+		message: "This_room_has_been_unarchived_by__username_",
 		data(message) {
 			return {
-				username: (RocketChat.settings.get('UI_Use_Real_Name') && cleanName(message.u.name)) || message.u.username
+				username:
+					(RocketChat.settings.get("UI_Use_Real_Name") &&
+						cleanName(message.u.name)) ||
+					message.u.username
 			};
 		}
 	});
