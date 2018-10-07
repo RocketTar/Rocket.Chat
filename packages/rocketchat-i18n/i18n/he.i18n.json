@@ -3,6 +3,7 @@
   "0_Errors_Only": "0 - שגיאות בלבד",
   "1_Errors_and_Information": "1 - טעויות ומידע",
   "2_Erros_Information_and_Debug": "2 - erros, מידע Debug",
+  "Hide_Message_Field_In_Logs": "הסתר את שדה ההודעה בלוגים",
   "403": "אסור",
   "500": "שגיאת שרת פנימית",
   "@username": "@שם-משתמש",
