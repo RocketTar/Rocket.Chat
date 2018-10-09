@@ -294,8 +294,12 @@ Template.room.helpers({
 
 				if (attachmentWithTag) {
 					const mentionId = attachmentWithTag.message_link.split("msg=")[1];
+
 					messages.forEach(message => {
-						if (message.mentions && message.mentions.length !== 0) {
+						const msgHasMentions =
+							message.mentions && message.mentions.length !== 0;
+
+						if (msgHasMentions) {
 							const matchingMessageWithMention = messages.find(
 								({ _id }) => _id === mentionId
 							);
