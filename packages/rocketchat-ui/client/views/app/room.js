@@ -284,10 +284,8 @@ Template.room.helpers({
 
 		const messages = ChatMessage.find(query, options).map(item => item);
 
-		const mergedAttachmentsAndMentions = [];
-
-		messages.forEach(message => {
-			const fixedMessage = { ...message };
+		const addMentionsToAttachments = msg => {
+			const fixedMessage = { ...msg };
 
 			if (fixedMessage.attachments) {
 				const attachmentWithTag = fixedMessage.attachments.find(
@@ -306,13 +304,23 @@ Template.room.helpers({
 								attachmentWithTag.mentions =
 									matchingMessageWithMention.mentions;
 							}
+
+							fixedMessage.attachments = fixedMessage.attachments.map(
+								attachment => addMentionsToAttachments(attachment)
+							);
 						}
 					});
 				}
 			}
-			mergedAttachmentsAndMentions.push(fixedMessage);
-		});
-		return mergedAttachmentsAndMentions; //messages; //ChatMessage.find(query, options).map(item => item);
+
+			return fixedMessage;
+		};
+
+		const mergedAttachmentsAndMentions = messages.map(msg =>
+			addMentionsToAttachments(msg)
+		);
+
+		return mergedAttachmentsAndMentions;
 	},
 
 	hasMore() {
