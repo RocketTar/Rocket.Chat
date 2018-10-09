@@ -264,10 +264,10 @@ Template.messagePopup.onCreated(function() {
 		const textFilter = template.textFilter.get();
 		if (textFilter) {
 			const triggerIndex = textFilter.lastIndexOf(template.trigger);
-			const filter = textFilter.substring(
-				triggerIndex,
-				getCursorPosition(textFilter)
-			);
+			const filter =
+				template.data.template === "messagePopupUser"
+					? textFilter.substring(triggerIndex, getCursorPosition(textFilter))
+					: textFilter;
 
 			if (filter != null) {
 				const filterCallback = result => {
