@@ -441,12 +441,20 @@ RocketChat.integrations.triggerHandler = new class RocketChatIntegrationHandler 
 		switch (argObject.event) {
 			case "sendMessage":
 				if (arguments.length >= 3) {
-					argObject.message = RocketChat.settings.get(
-						"Hide_Message_Field_In_Logs"
-					)
-						? "***secret***"
-						: arguments[1];
+					argObject.message = arguments[1];
+					if (RocketChat.settings.get("Hide_Message_Field_In_Logs")) {
+						argObject.message.msg = "***secret***";
+					}
+
 					argObject.room = arguments[2];
+
+					if (
+						RocketChat.settings.get("Hide_Message_Field_In_Logs") &&
+						argObject.room &&
+						argObject.room.lastMessage
+					) {
+						argObject.room.lastMessage.msg = "***secret***";
+					}
 				}
 				break;
 			case "fileUploaded":
