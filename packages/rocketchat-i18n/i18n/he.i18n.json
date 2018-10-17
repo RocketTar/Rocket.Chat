@@ -21,6 +21,8 @@
   "Accounts_AllowedDomainsList_Description": "רשימת הדומיינים המאושרים מופרדים בפסיק",
   "Accounts_AllowEmailChange": "אפשר שינוי דואר אלקטרוני",
   "Accounts_AllowPasswordChange": "אפשר שינוי סיסמה",
+  "Accounts_AllowVideoCalls": "אפשר שיחות וידאו",
+  "Accounts_AllowAudioCalls": "אפשר שיחות אודיו",
   "Accounts_AllowUserAvatarChange": "אפשר למשתמש לשנות את תמונת הפרופיל",
   "Accounts_AllowUsernameChange": "אפשר שינוי שם משתמש",
   "Accounts_AllowUserProfileChange": "אפשר למשתמש לשנות את הפרופיל",
