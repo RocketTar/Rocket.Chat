@@ -378,6 +378,9 @@ Template.messagePopup.helpers({
 		const template = Template.instance();
 		return Object.assign(template.records.get(), { toolbar: true });
 	},
+	hasData() {
+		return Template.instance().records.get().length !== 0 ? true : false;
+	},
 	toolbarData() {
 		return { ...Template.currentData(), toolbar: true };
 	},
