@@ -1,11 +1,11 @@
-import _ from 'underscore';
+import _ from "underscore";
 
 const acEvents = {
-	'click .rc-popup-list__item'(e, t) {
+	"click .rc-popup-list__item"(e, t) {
 		t.ac.onItemClick(this, e);
 	},
 	'keydown [name="users"]'(e, t) {
-		if ([8, 46].includes(e.keyCode) && e.target.value === '') {
+		if ([8, 46].includes(e.keyCode) && e.target.value === "") {
 			const users = t.selectedUsers;
 			const usersArr = users.get();
 			usersArr.pop();
@@ -25,29 +25,33 @@ const acEvents = {
 	}
 };
 
-const validateChannelName = (name) => {
-	if (RocketChat.settings.get('UI_Allow_room_names_with_special_chars')) {
+const validateChannelName = name => {
+	if (RocketChat.settings.get("UI_Allow_room_names_with_special_chars")) {
 		return true;
 	}
 
-	const reg = new RegExp(`^${ RocketChat.settings.get('UTF8_Names_Validation') }$`);
+	const reg = new RegExp(
+		`^${RocketChat.settings.get("UTF8_Names_Validation")}$`
+	);
 	return name.length === 0 || reg.test(name);
 };
 
-const filterNames = (old) => {
-	if (RocketChat.settings.get('UI_Allow_room_names_with_special_chars')) {
+const filterNames = old => {
+	if (RocketChat.settings.get("UI_Allow_room_names_with_special_chars")) {
 		return old;
 	}
 
-	const reg = new RegExp(`^${ RocketChat.settings.get('UTF8_Names_Validation') }$`);
-	return [...old].filter(f => reg.test(f)).join('');
+	const reg = new RegExp(
+		`^${RocketChat.settings.get("UTF8_Names_Validation")}$`
+	);
+	return [...old].filter(f => reg.test(f)).join("");
 };
 
 Template.createChannel.helpers({
 	autocomplete(key) {
 		const instance = Template.instance();
 		const param = instance.ac[key];
-		return typeof param === 'function' ? param.apply(instance.ac): param;
+		return typeof param === "function" ? param.apply(instance.ac) : param;
 	},
 	items() {
 		return Template.instance().ac.filteredList();
@@ -56,12 +60,16 @@ Template.createChannel.helpers({
 		const filter = Template.instance().userFilter;
 		return {
 			filter: filter.get(),
-			noMatchTemplate: 'userSearchEmpty',
+			noMatchTemplate: "userSearchEmpty",
 			modifier(text) {
 				const f = filter.get();
-				return `@${ f.length === 0 ? text : text.replace(new RegExp(filter.get()), function(part) {
-					return `<strong>${ part }</strong>`;
-				}) }`;
+				return `@${
+					f.length === 0
+						? text
+						: text.replace(new RegExp(filter.get()), function(part) {
+								return `<strong>${part}</strong>`;
+						  })
+				}`;
 			}
 		};
 	},
@@ -78,10 +86,18 @@ Template.createChannel.helpers({
 		return invalid || inUse;
 	},
 	typeLabel() {
-		return t(Template.instance().type.get() === 'p' ? t('Private_Channel') : t('Public_Channel'));
+		return t(
+			Template.instance().type.get() === "p"
+				? t("Private_Channel")
+				: t("Public_Channel")
+		);
 	},
 	typeDescription() {
-		return t(Template.instance().type.get() === 'p' ? t('Just_invited_people_can_access_this_channel') : t('Everyone_can_access_this_channel'));
+		return t(
+			Template.instance().type.get() === "p"
+				? t("Just_invited_people_can_access_this_channel")
+				: t("Everyone_can_access_this_channel")
+		);
 	},
 	broadcast() {
 		return Template.instance().broadcast.get();
@@ -90,13 +106,17 @@ Template.createChannel.helpers({
 		return Template.instance().readOnly.get();
 	},
 	readOnlyDescription() {
-		return t(Template.instance().readOnly.get() ? t('Only_authorized_users_can_write_new_messages') : t('All_users_in_the_channel_can_write_new_messages'));
+		return t(
+			Template.instance().readOnly.get()
+				? t("Only_authorized_users_can_write_new_messages")
+				: t("All_users_in_the_channel_can_write_new_messages")
+		);
 	},
 	cantCreateBothTypes() {
-		return !RocketChat.authz.hasAllPermission(['create-c', 'create-p']);
+		return !RocketChat.authz.hasAllPermission(["create-c", "create-p"]);
 	},
 	roomTypeIsP() {
-		return Template.instance().type.get() === 'p';
+		return Template.instance().type.get() === "p";
 	},
 	createIsDisabled() {
 		const instance = Template.instance();
@@ -105,65 +125,78 @@ Template.createChannel.helpers({
 		const inUse = instance.inUse.get();
 		const name = instance.name.get();
 
-		if (name.length === 0 || invalid || inUse === true || inUse === undefined || extensions_invalid) {
-			return 'disabled';
+		if (
+			name.length === 0 ||
+			invalid ||
+			inUse === true ||
+			inUse === undefined ||
+			extensions_invalid
+		) {
+			return "disabled";
 		}
-		return '';
+		return "";
 	},
 	iconType() {
-		return Template.instance().type.get() === 'p' ? 'lock' : 'hashtag';
+		return Template.instance().type.get() === "p" ? "lock" : "hashtag";
 	},
 	tokenAccessEnabled() {
-		return RocketChat.settings.get('API_Tokenpass_URL') !== '';
+		return RocketChat.settings.get("API_Tokenpass_URL") !== "";
 	},
 	tokenIsDisabled() {
-		return Template.instance().type.get() !== 'p' ? 'disabled' : null;
+		return Template.instance().type.get() !== "p" ? "disabled" : null;
 	},
 	tokensRequired() {
-		return Template.instance().tokensRequired.get() && Template.instance().type.get() === 'p';
+		return (
+			Template.instance().tokensRequired.get() &&
+			Template.instance().type.get() === "p"
+		);
 	},
 	extensionsConfig() {
 		const instance = Template.instance();
 		return {
-			validations : instance.extensions_validations,
+			validations: instance.extensions_validations,
 			submits: instance.extensions_submits,
 			change: instance.change
 		};
 	},
 	roomTypesBeforeStandard() {
-		const orderLow = RocketChat.roomTypes.roomTypesOrder.filter((roomTypeOrder) => roomTypeOrder.identifier === 'c')[0].order;
-		return RocketChat.roomTypes.roomTypesOrder.filter(
-			(roomTypeOrder) => roomTypeOrder.order < orderLow
-		).map(
-			(roomTypeOrder) => {
+		const orderLow = RocketChat.roomTypes.roomTypesOrder.filter(
+			roomTypeOrder => roomTypeOrder.identifier === "c"
+		)[0].order;
+		return RocketChat.roomTypes.roomTypesOrder
+			.filter(roomTypeOrder => roomTypeOrder.order < orderLow)
+			.map(roomTypeOrder => {
 				return RocketChat.roomTypes.roomTypes[roomTypeOrder.identifier];
-			}
-		).filter((roomType) => roomType.creationTemplate);
+			})
+			.filter(roomType => roomType.creationTemplate);
 	},
 	roomTypesAfterStandard() {
-		const orderHigh = RocketChat.roomTypes.roomTypesOrder.filter((roomTypeOrder) => roomTypeOrder.identifier === 'd')[0].order;
-		return RocketChat.roomTypes.roomTypesOrder.filter(
-			(roomTypeOrder) => roomTypeOrder.order > orderHigh
-		).map(
-			(roomTypeOrder) => {
+		const orderHigh = RocketChat.roomTypes.roomTypesOrder.filter(
+			roomTypeOrder => roomTypeOrder.identifier === "d"
+		)[0].order;
+		return RocketChat.roomTypes.roomTypesOrder
+			.filter(roomTypeOrder => roomTypeOrder.order > orderHigh)
+			.map(roomTypeOrder => {
 				return RocketChat.roomTypes.roomTypes[roomTypeOrder.identifier];
-			}
-		).filter((roomType) => roomType.creationTemplate);
+			})
+			.filter(roomType => roomType.creationTemplate);
 	}
 });
 
 Template.createChannel.events({
 	...acEvents,
-	'click .rc-tags__tag'({target}, t) {
-		const {username} = Blaze.getData(target);
-		t.selectedUsers.set(t.selectedUsers.get().filter(user => user.username !== username));
+	"click .rc-tags__tag"({ target }, t) {
+		const { username } = Blaze.getData(target);
+		t.selectedUsers.set(
+			t.selectedUsers.get().filter(user => user.username !== username)
+		);
 	},
-	'change [name=setTokensRequired]'(e, t) {
+	"change [name=setTokensRequired]"(e, t) {
 		t.tokensRequired.set(e.currentTarget.checked);
 		t.change();
 	},
 	'change [name="type"]'(e, t) {
-		t.type.set(e.target.checked ? e.target.value : 'd');
+		t.type.set(e.target.checked ? e.target.value : "d");
 		t.change();
 	},
 	'change [name="broadcast"]'(e, t) {
@@ -179,7 +212,10 @@ Template.createChannel.events({
 		const length = input.value.length;
 		const modified = filterNames(input.value);
 		input.value = modified;
-		document.activeElement === input && e && /input/i.test(e.type) && (input.selectionEnd = position + input.value.length - length);
+		document.activeElement === input &&
+			e &&
+			/input/i.test(e.type) &&
+			(input.selectionEnd = position + input.value.length - length);
 
 		t.userFilter.set(modified);
 	},
@@ -190,7 +226,10 @@ Template.createChannel.events({
 		const modified = filterNames(input.value);
 
 		input.value = modified;
-		document.activeElement === input && e && /input/i.test(e.type) && (input.selectionEnd = position + input.value.length - length);
+		document.activeElement === input &&
+			e &&
+			/input/i.test(e.type) &&
+			(input.selectionEnd = position + input.value.length - length);
 		t.invalid.set(!validateChannelName(input.value));
 		if (input.value !== t.name.get()) {
 			t.inUse.set(undefined);
@@ -198,44 +237,65 @@ Template.createChannel.events({
 			t.name.set(modified);
 		}
 	},
-	'submit .create-channel__content'(e, instance) {
+	"submit .create-channel__content"(e, instance) {
 		e.preventDefault();
 		e.stopPropagation();
 		const name = e.target.name.value;
 		const type = instance.type.get();
 		const readOnly = instance.readOnly.get();
 		const broadcast = instance.broadcast.get();
-		const isPrivate = type === 'p';
+		const isPrivate = type === "p";
 
 		if (instance.invalid.get() || instance.inUse.get()) {
 			return e.target.name.focus();
 		}
-		if (!Object.keys(instance.extensions_validations).map(key => instance.extensions_validations[key]).reduce((valid, fn) => fn(instance) && valid, true)) {
+		if (
+			!Object.keys(instance.extensions_validations)
+				.map(key => instance.extensions_validations[key])
+				.reduce((valid, fn) => fn(instance) && valid, true)
+		) {
 			return instance.extensions_invalid.set(true);
 		}
 
-		const extraData = Object.keys(instance.extensions_submits)
-			.reduce((result, key) => {
+		const extraData = Object.keys(instance.extensions_submits).reduce(
+			(result, key) => {
 				return { ...result, ...instance.extensions_submits[key](instance) };
-			}, {broadcast});
+			},
+			{ broadcast }
+		);
 
-		Meteor.call(isPrivate ? 'createPrivateGroup' : 'createChannel', name, instance.selectedUsers.get().map(user => user.username), readOnly, {}, extraData, function(err, result) {
-			if (err) {
-				if (err.error === 'error-invalid-name') {
-					return instance.invalid.set(true);
+		Meteor.call(
+			isPrivate ? "createPrivateGroup" : "createChannel",
+			name,
+			instance.selectedUsers.get().map(user => user.username),
+			readOnly,
+			{},
+			extraData,
+			function(err, result) {
+				if (err) {
+					if (err.error === "error-invalid-name") {
+						return instance.invalid.set(true);
+					}
+					if (err.error === "error-duplicate-channel-name") {
+						return instance.inUse.set(true);
+					}
+					return;
 				}
-				if (err.error === 'error-duplicate-channel-name') {
-					return instance.inUse.set(true);
+
+				if (!isPrivate) {
+					RocketChat.callbacks.run("aftercreateCombined", {
+						_id: result.rid,
+						name: result.name
+					});
 				}
-				return;
-			}
 
-			if (!isPrivate) {
-				RocketChat.callbacks.run('aftercreateCombined', { _id: result.rid, name: result.name });
+				return FlowRouter.go(
+					isPrivate ? "group" : "channel",
+					{ name: result.name },
+					FlowRouter.current().queryParams
+				);
 			}
-
-			return FlowRouter.go(isPrivate ? 'group' : 'channel', { name: result.name }, FlowRouter.current().queryParams);
-		});
+		);
 		return false;
 	}
 });
@@ -246,7 +306,7 @@ Template.createChannel.onRendered(function() {
 	this.firstNode.querySelector('[name="users"]').focus();
 	this.ac.element = this.firstNode.querySelector('[name="users"]');
 	this.ac.$element = $(this.ac.element);
-	this.ac.$element.on('autocompleteselect', function(e, {item}) {
+	this.ac.$element.on("autocompleteselect", function(e, { item }) {
 		const usersArr = users.get();
 		usersArr.push(item);
 		users.set(usersArr);
@@ -256,15 +316,23 @@ Template.createChannel.onRendered(function() {
 Template.createChannel.onCreated(function() {
 	this.selectedUsers = new ReactiveVar([]);
 
-	const filter = {exceptions :[Meteor.user().username].concat(this.selectedUsers.get().map(u => u.username))};
+	const filter = {
+		exceptions: [Meteor.user().username].concat(
+			this.selectedUsers.get().map(u => u.username)
+		)
+	};
 	// this.onViewRead:??y(function() {
 	Tracker.autorun(() => {
-		filter.exceptions = [Meteor.user().username].concat(this.selectedUsers.get().map(u => u.username));
+		filter.exceptions = [Meteor.user().username].concat(
+			this.selectedUsers.get().map(u => u.username)
+		);
 	});
 	this.extensions_validations = {};
 	this.extensions_submits = {};
-	this.name = new ReactiveVar('');
-	this.type = new ReactiveVar(RocketChat.authz.hasAllPermission(['create-p']) ? 'p' : 'c');
+	this.name = new ReactiveVar("");
+	this.type = new ReactiveVar(
+		RocketChat.authz.hasAllPermission(["create-p"]) ? "p" : "c"
+	);
 	this.readOnly = new ReactiveVar(false);
 	this.broadcast = new ReactiveVar(false);
 	this.inUse = new ReactiveVar(undefined);
@@ -272,7 +340,9 @@ Template.createChannel.onCreated(function() {
 	this.extensions_invalid = new ReactiveVar(false);
 	this.change = _.debounce(() => {
 		let valid = true;
-		Object.keys(this.extensions_validations).map(key => this.extensions_validations[key]).forEach(f => (valid = f(this) && valid));
+		Object.keys(this.extensions_validations)
+			.map(key => this.extensions_validations[key])
+			.forEach(f => (valid = f(this) && valid));
 		this.extensions_invalid.set(!valid);
 	}, 300);
 
@@ -283,11 +353,11 @@ Template.createChannel.onCreated(function() {
 		}
 	});
 
-	this.userFilter = new ReactiveVar('');
+	this.userFilter = new ReactiveVar("");
 	this.tokensRequired = new ReactiveVar(false);
-	this.checkChannel = _.debounce((name) => {
+	this.checkChannel = _.debounce(name => {
 		if (validateChannelName(name)) {
-			return Meteor.call('roomNameExists', name, (error, result) => {
+			return Meteor.call("roomNameExists", name, (error, result) => {
 				if (error) {
 					return;
 				}
@@ -297,32 +367,30 @@ Template.createChannel.onCreated(function() {
 		this.inUse.set(undefined);
 	}, 1000);
 
-	this.ac = new AutoComplete(
-		{
-			selector:{
-				item: '.rc-popup-list__item',
-				container: '.rc-popup-list__list'
-			},
+	this.ac = new AutoComplete({
+		selector: {
+			item: ".rc-popup-list__item",
+			container: ".rc-popup-list__list"
+		},
 
-			limit: 10,
-			inputDelay: 300,
-			rules: [
-				{
+		limit: 10,
+		inputDelay: 300,
+		rules: [
+			{
 				// @TODO maybe change this 'collection' and/or template
-					collection: 'UserAndRoom',
-					subscription: 'userAutocomplete',
-					field: 'username',
-					matchAll: true,
-					filter,
-					doNotChangeWidth: false,
-					selector(match) {
-						return { term: match };
-					},
-					sort: 'username'
-				}
-			]
-
-		});
+				collection: "UserAndRoom",
+				subscription: "userAutocomplete",
+				field: "username",
+				matchAll: true,
+				filter,
+				doNotChangeWidth: false,
+				selector(match) {
+					return { term: match };
+				},
+				sort: "username"
+			}
+		]
+	});
 
 	// this.firstNode.querySelector('[name=name]').focus();
 	// this.ac.element = this.firstNode.querySelector('[name=users]');
@@ -331,21 +399,25 @@ Template.createChannel.onCreated(function() {
 });
 
 Template.tokenpass.onCreated(function() {
-	this.data.validations.tokenpass = (instance) => {
-		const result = (RocketChat.settings.get('API_Tokenpass_URL') !== '' && instance.tokensRequired.get() && instance.type.get() === 'p') && this.selectedTokens.get().length === 0;
+	this.data.validations.tokenpass = instance => {
+		const result =
+			RocketChat.settings.get("API_Tokenpass_URL") !== "" &&
+			instance.tokensRequired.get() &&
+			instance.type.get() === "p" &&
+			this.selectedTokens.get().length === 0;
 		this.invalid.set(result);
 		return !result;
 	};
 	this.data.submits.tokenpass = () => {
 		return {
 			tokenpass: {
-				require: this.requireAll.get() ? 'all' : 'any',
+				require: this.requireAll.get() ? "all" : "any",
 				tokens: this.selectedTokens.get()
 			}
 		};
 	};
-	this.balance = new ReactiveVar('');
-	this.token = new ReactiveVar('');
+	this.balance = new ReactiveVar("");
+	this.token = new ReactiveVar("");
 	this.selectedTokens = new ReactiveVar([]);
 	this.invalid = new ReactiveVar(false);
 	this.requireAll = new ReactiveVar(true);
@@ -359,41 +431,50 @@ Template.tokenpass.helpers({
 		return Template.instance().invalid.get();
 	},
 	addIsDisabled() {
-		const {balance, token} = Template.instance();
-		return (balance.get().length && token.get().length) ? '' : 'disabled';
+		const { balance, token } = Template.instance();
+		return balance.get().length && token.get().length ? "" : "disabled";
 	},
 	tokenRequiment() {
-		return Template.instance().requireAll.get() ? t('Require_all_tokens') : t('Require_any_token');
+		return Template.instance().requireAll.get()
+			? t("Require_all_tokens")
+			: t("Require_any_token");
 	},
 	tokenRequimentDescription() {
-		return Template.instance().requireAll.get() ? t('All_added_tokens_will_be_required_by_the_user') : t('At_least_one_added_token_is_required_by_the_user');
+		return Template.instance().requireAll.get()
+			? t("All_added_tokens_will_be_required_by_the_user")
+			: t("At_least_one_added_token_is_required_by_the_user");
 	}
 });
 
 Template.tokenpass.events({
-	'click [data-button=add]'(e, instance) {
-		const {balance, token, selectedTokens} = instance;
+	"click [data-button=add]"(e, instance) {
+		const { balance, token, selectedTokens } = instance;
 		const text = token.get();
 		const arr = selectedTokens.get();
-		selectedTokens.set([...arr.filter(token => token.token !== text), {token: text, balance: balance.get()}]);
-		balance.set('');
-		token.set('');
-		[...instance.findAll('input[type=text],input[type=number]')].forEach(el => el.value = '');
+		selectedTokens.set([
+			...arr.filter(token => token.token !== text),
+			{ token: text, balance: balance.get() }
+		]);
+		balance.set("");
+		token.set("");
+		[...instance.findAll("input[type=text],input[type=number]")].forEach(
+			el => (el.value = "")
+		);
 		instance.data.change();
 		return false;
 	},
-	'click .rc-tags__tag'({target}, t) {
-		const {token} = Blaze.getData(target);
+	"click .rc-tags__tag"({ target }, t) {
+		const { token } = Blaze.getData(target);
 		t.selectedTokens.set(t.selectedTokens.get().filter(t => t.token !== token));
 		t.data.change();
 	},
-	'input [name=tokenMinimumNeededBalance]'(e, i) {
+	"input [name=tokenMinimumNeededBalance]"(e, i) {
 		i.balance.set(e.target.value);
 	},
-	'input [name=tokensRequired]'(e, i) {
+	"input [name=tokensRequired]"(e, i) {
 		i.token.set(e.target.value);
 	},
-	'change [name=tokenRequireAll]'(e, i) {
+	"change [name=tokenRequireAll]"(e, i) {
 		i.requireAll.set(e.currentTarget.checked);
 	}
 });
