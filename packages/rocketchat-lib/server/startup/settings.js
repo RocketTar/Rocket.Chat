@@ -1388,6 +1388,14 @@ RocketChat.settings.addGroup("Message", function() {
 			public: true
 		});
 	});
+	this.add("Message_MaxUsersInTagSearch", 50, {
+		type: "int",
+		public: true
+	});
+	this.add("Message_MaxRoomsInTagSearch", 50, {
+		type: "int",
+		public: true
+	});
 	this.add("Message_AllowEditing", true, {
 		type: "boolean",
 		public: true

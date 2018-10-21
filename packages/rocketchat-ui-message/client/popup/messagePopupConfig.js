@@ -56,6 +56,7 @@ Meteor.startup(function() {
 });
 
 const fetchUsersFromServer = (filterText, records, cb, rid) => {
+	const limit = RocketChat.settings.get("Message_MaxUsersInTagSearch");
 	const usernames = records.map(({ username }) => username);
 
 	return Meteor.call(
@@ -76,8 +77,8 @@ const fetchUsersFromServer = (filterText, records, cb, rid) => {
 				return;
 			}
 
-			users.slice(0, 5).forEach(({ username, name, status }) => {
-				if (records.length < 5) {
+			users.slice(0, limit).forEach(({ username, name, status }) => {
+				if (records.length < limit) {
 					records.push({
 						_id: username,
 						username,
@@ -96,6 +97,7 @@ const fetchUsersFromServer = (filterText, records, cb, rid) => {
 };
 
 const fetchRoomsFromServer = (filterText, records, cb, rid) => {
+	const limit = RocketChat.settings.get("Message_MaxRoomsInTagSearch");
 	if (!RocketChat.authz.hasAllPermission("view-outside-room")) {
 		return cb && cb([]);
 	}
@@ -117,8 +119,8 @@ const fetchRoomsFromServer = (filterText, records, cb, rid) => {
 				return;
 			}
 
-			rooms.slice(0, 5).forEach(room => {
-				if (records.length < 5) {
+			rooms.slice(0, limit).forEach(room => {
+				if (records.length < limit) {
 					records.push(room);
 				}
 			});

@@ -1705,6 +1705,8 @@
   "Mentions_only": "Mentions only",
   "Merge_Channels": "Merge Channels",
   "Message": "Message",
+  "Message_MaxUsersInTagSearch": "Max Users in Tag Search",
+  "Message_MaxRoomsInTagSearch": "Max Rooms in Tag Search",
   "Message_AllowBadWordsFilter": "Allow Message bad words filtering",
   "Message_AllowDeleting": "Allow Message Deleting",
   "Message_AllowDeleting_BlockDeleteInMinutes": "Block Message Deleting After (n) Minutes",

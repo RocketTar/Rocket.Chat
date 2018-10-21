@@ -813,6 +813,8 @@
   "Mentions_only": "אזכורים בלבד",
   "Merge_Channels": "מזג ערוצים",
   "Message": "הודעה",
+  "Message_MaxUsersInTagSearch": "מספר משתמשים בחיפוש בתיוג",
+  "Message_MaxRoomsInTagSearch": "מספר חדרים בחיפוש בתיוג",
   "Message_AllowBadWordsFilter": "אפשר סינון מילים רעות",
   "Message_AllowDeleting": "לאפשר מחיקת הודעות",
   "Message_AllowDeleting_BlockDeleteInMinutes": "בלוק הודעה מחיק אחרי (n) פרוטוקול",
