@@ -52,14 +52,6 @@ RocketChat.settings.addGroup("Accounts", function() {
 		type: "boolean",
 		public: true
 	});
-	this.add("Accounts_AllowVideoCalls", false, {
-		type: "boolean",
-		public: true
-	});
-	this.add("Accounts_AllowAudioCalls", false, {
-		type: "boolean",
-		public: true
-	});
 	this.add("Accounts_CustomFieldsToShowInUserInfo", "", {
 		type: "string",
 		public: true

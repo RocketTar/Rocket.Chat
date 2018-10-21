@@ -154,10 +154,6 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 		},
 
 		function() {
-			if (!RocketChat.settings.get("Accounts_AllowVideoCalls")) {
-				return;
-			}
-
 			if (isSelf(this.username) || !directActions) {
 				return;
 			}
@@ -203,10 +199,6 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 		},
 
 		function() {
-			if (!RocketChat.settings.get("Accounts_AllowAudioCalls")) {
-				return;
-			}
-
 			if (isSelf(this.username) || !directActions) {
 				return;
 			}
