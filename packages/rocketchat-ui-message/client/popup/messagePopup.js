@@ -163,23 +163,30 @@ Template.messagePopup.onCreated(function() {
 	}, template.textFilterDelay);
 
 	template.onInputKeyup = event => {
+		console.log("WHAT 1");
 		if (
 			template.closeOnEsc === true &&
 			template.open.curValue === true &&
 			event.which === keys.ESC
 		) {
+			console.log("close");
 			template.open.set(false);
 			$(".toolbar").css("display", "none");
 			event.preventDefault();
 			event.stopPropagation();
 			return;
+		} else {
+			console.log("fuck you i open");
 		}
+		console.log("WHAT 2");
 		const value = template.input.value;
 
 		if (template.matchSelectorRegex.test(value)) {
 			template.setTextFilter(value);
+			console.log("open 1");
 			template.open.set(true);
 		} else {
+			console.log("set false 4");
 			template.open.set(false);
 		}
 		if (template.open.curValue !== true) {
@@ -199,6 +206,7 @@ Template.messagePopup.onCreated(function() {
 		const value = template.input.value;
 		if (template.matchSelectorRegex.test(value)) {
 			template.setTextFilter(value.match(template.selectorRegex)[1]);
+			console.log("open 2");
 			template.open.set(true);
 			return Meteor.defer(function() {
 				return template.verifySelection();
@@ -215,6 +223,7 @@ Template.messagePopup.onCreated(function() {
 		if (template.clickingItem === true) {
 			return;
 		}
+
 		return template.open.set(false);
 	};
 
@@ -265,6 +274,7 @@ Template.messagePopup.onCreated(function() {
 		if (textFilter) {
 			const triggerIndex = textFilter.lastIndexOf(template.trigger);
 			const filter =
+				template.data.template === "messagePopupUser" ||
 				template.data.template === "messagePopupUser"
 					? textFilter.substring(triggerIndex, getCursorPosition(textFilter))
 					: textFilter;
