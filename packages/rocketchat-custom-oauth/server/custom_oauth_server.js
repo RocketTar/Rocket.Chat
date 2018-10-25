@@ -1,18 +1,26 @@
 /*globals OAuth*/
-import _ from 'underscore';
+import _ from "underscore";
 
-const logger = new Logger('CustomOAuth');
+const logger = new Logger("CustomOAuth");
 
 const Services = {};
 const BeforeUpdateOrCreateUserFromExternalService = [];
 
+const cutUsername = username => {
+	const indexOfAtSign = username.indexOf("@");
+
+	return indexOfAtSign !== -1 ? username.substring(0, indexOfAtSign) : username;
+};
+
 export class CustomOAuth {
 	constructor(name, options) {
-		logger.debug('Init CustomOAuth', name, options);
+		logger.debug("Init CustomOAuth", name, options);
 
 		this.name = name;
 		if (!Match.test(this.name, String)) {
-			throw new Meteor.Error('CustomOAuth: Name is required and must be String');
+			throw new Meteor.Error(
+				"CustomOAuth: Name is required and must be String"
+			);
 		}
 
 		if (Services[this.name]) {
@@ -24,9 +32,9 @@ export class CustomOAuth {
 
 		this.configure(options);
 
-		this.userAgent = 'Meteor';
+		this.userAgent = "Meteor";
 		if (Meteor.release) {
-			this.userAgent += `/${ Meteor.release }`;
+			this.userAgent += `/${Meteor.release}`;
 		}
 
 		Accounts.oauth.registerService(this.name);
@@ -36,19 +44,23 @@ export class CustomOAuth {
 
 	configure(options) {
 		if (!Match.test(options, Object)) {
-			throw new Meteor.Error('CustomOAuth: Options is required and must be Object');
+			throw new Meteor.Error(
+				"CustomOAuth: Options is required and must be Object"
+			);
 		}
 
 		if (!Match.test(options.serverURL, String)) {
-			throw new Meteor.Error('CustomOAuth: Options.serverURL is required and must be String');
+			throw new Meteor.Error(
+				"CustomOAuth: Options.serverURL is required and must be String"
+			);
 		}
 
 		if (!Match.test(options.tokenPath, String)) {
-			options.tokenPath = '/oauth/token';
+			options.tokenPath = "/oauth/token";
 		}
 
 		if (!Match.test(options.identityPath, String)) {
-			options.identityPath = '/me';
+			options.identityPath = "/me";
 		}
 
 		this.serverURL = options.serverURL;
@@ -56,10 +68,13 @@ export class CustomOAuth {
 		this.identityPath = options.identityPath;
 		this.tokenSentVia = options.tokenSentVia;
 		this.identityTokenSentVia = options.identityTokenSentVia;
-		this.usernameField = (options.usernameField || '').trim();
+		this.usernameField = (options.usernameField || "").trim();
 		this.mergeUsers = options.mergeUsers;
 
-		if (this.identityTokenSentVia == null || this.identityTokenSentVia === 'default') {
+		if (
+			this.identityTokenSentVia == null ||
+			this.identityTokenSentVia === "default"
+		) {
 			this.identityTokenSentVia = this.tokenSentVia;
 		}
 
@@ -77,7 +92,9 @@ export class CustomOAuth {
 	}
 
 	getAccessToken(query) {
-		const config = ServiceConfiguration.configurations.findOne({service: this.name});
+		const config = ServiceConfiguration.configurations.findOne({
+			service: this.name
+		});
 		if (!config) {
 			throw new ServiceConfiguration.ConfigError();
 		}
@@ -86,30 +103,36 @@ export class CustomOAuth {
 
 		const allOptions = {
 			headers: {
-				'User-Agent': this.userAgent, // http://doc.gitlab.com/ce/api/users.html#Current-user
-				Accept: 'application/json'
+				"User-Agent": this.userAgent, // http://doc.gitlab.com/ce/api/users.html#Current-user
+				Accept: "application/json"
 			},
 			params: {
 				code: query.code,
 				redirect_uri: OAuth._redirectUri(this.name, config),
-				grant_type: 'authorization_code',
+				grant_type: "authorization_code",
 				state: query.state
 			}
 		};
 
 		// Only send clientID / secret once on header or payload.
-		if (this.tokenSentVia === 'header') {
-			allOptions['auth'] = `${ config.clientId }:${ OAuth.openSecret(config.secret) }`;
+		if (this.tokenSentVia === "header") {
+			allOptions["auth"] = `${config.clientId}:${OAuth.openSecret(
+				config.secret
+			)}`;
 		} else {
-			allOptions['params']['client_secret'] = OAuth.openSecret(config.secret);
-			allOptions['params']['client_id'] = config.clientId;
+			allOptions["params"]["client_secret"] = OAuth.openSecret(config.secret);
+			allOptions["params"]["client_id"] = config.clientId;
 		}
 
 		try {
 			response = HTTP.post(this.tokenPath, allOptions);
 		} catch (err) {
-			const error = new Error(`Failed to complete OAuth handshake with ${ this.name } at ${ this.tokenPath }. ${ err.message }`);
-			throw _.extend(error, {response: err.response});
+			const error = new Error(
+				`Failed to complete OAuth handshake with ${this.name} at ${
+					this.tokenPath
+				}. ${err.message}`
+			);
+			throw _.extend(error, { response: err.response });
 		}
 
 		let data;
@@ -119,8 +142,13 @@ export class CustomOAuth {
 			data = JSON.parse(response.content);
 		}
 
-		if (data.error) { //if the http response was a json object with an error attribute
-			throw new Error(`Failed to complete OAuth handshake with ${ this.name } at ${ this.tokenPath }. ${ data.error }`);
+		if (data.error) {
+			//if the http response was a json object with an error attribute
+			throw new Error(
+				`Failed to complete OAuth handshake with ${this.name} at ${
+					this.tokenPath
+				}. ${data.error}`
+			);
 		} else {
 			return data.access_token;
 		}
@@ -129,13 +157,13 @@ export class CustomOAuth {
 	getIdentity(accessToken) {
 		const params = {};
 		const headers = {
-			'User-Agent': this.userAgent // http://doc.gitlab.com/ce/api/users.html#Current-user
+			"User-Agent": this.userAgent // http://doc.gitlab.com/ce/api/users.html#Current-user
 		};
 
-		if (this.identityTokenSentVia === 'header') {
-			headers['Authorization'] = `Bearer ${ accessToken }`;
+		if (this.identityTokenSentVia === "header") {
+			headers["Authorization"] = `Bearer ${accessToken}`;
 		} else {
-			params['access_token'] = accessToken;
+			params["access_token"] = accessToken;
 		}
 
 		try {
@@ -152,18 +180,22 @@ export class CustomOAuth {
 				data = JSON.parse(response.content);
 			}
 
-			logger.debug('Identity response', JSON.stringify(data, null, 2));
+			logger.debug("Identity response", JSON.stringify(data, null, 2));
 
 			return data;
 		} catch (err) {
-			const error = new Error(`Failed to fetch identity from ${ this.name } at ${ this.identityPath }. ${ err.message }`);
-			throw _.extend(error, {response: err.response});
+			const error = new Error(
+				`Failed to fetch identity from ${this.name} at ${this.identityPath}. ${
+					err.message
+				}`
+			);
+			throw _.extend(error, { response: err.response });
 		}
 	}
 
 	registerService() {
 		const self = this;
-		OAuth.registerService(this.name, 2, null, (query) => {
+		OAuth.registerService(this.name, 2, null, query => {
 			const accessToken = self.getAccessToken(query);
 			// console.log 'at:', accessToken
 
@@ -224,15 +256,27 @@ export class CustomOAuth {
 				}
 
 				// Fix Nextcloud provider
-				if (!identity.id && identity.ocs && identity.ocs.data && identity.ocs.data.id) {
+				if (
+					!identity.id &&
+					identity.ocs &&
+					identity.ocs.data &&
+					identity.ocs.data.id
+				) {
 					identity.id = identity.ocs.data.id;
 					identity.name = identity.ocs.data.displayname;
 					identity.email = identity.ocs.data.email;
 				}
 
 				// Fix when authenticating from a meteor app with 'emails' field
-				if (!identity.email && (identity.emails && Array.isArray(identity.emails) && identity.emails.length >= 1)) {
-					identity.email = identity.emails[0].address ? identity.emails[0].address : undefined;
+				if (
+					!identity.email &&
+					(identity.emails &&
+						Array.isArray(identity.emails) &&
+						identity.emails.length >= 1)
+				) {
+					identity.email = identity.emails[0].address
+						? identity.emails[0].address
+						: undefined;
 				}
 			}
 
@@ -249,7 +293,14 @@ export class CustomOAuth {
 				serviceData,
 				options: {
 					profile: {
-						name: identity.name || identity.username || identity.nickname || identity.CharacterName || identity.userName || identity.preferred_username || (identity.user && identity.user.name)
+						name:
+							identity.name ||
+							identity.username ||
+							identity.nickname ||
+							identity.CharacterName ||
+							identity.userName ||
+							identity.preferred_username ||
+							(identity.user && identity.user.name)
 					}
 				}
 			};
@@ -265,25 +316,32 @@ export class CustomOAuth {
 	}
 
 	getUsername(data) {
-		let username = '';
+		let username = "";
 
-		username = this.usernameField.split('.').reduce(function(prev, curr) {
+		username = this.usernameField.split(".").reduce(function(prev, curr) {
 			return prev ? prev[curr] : undefined;
 		}, data);
 		if (!username) {
-			throw new Meteor.Error('field_not_found', `Username field "${ this.usernameField }" not found in data`, data);
+			throw new Meteor.Error(
+				"field_not_found",
+				`Username field "${this.usernameField}" not found in data`,
+				data
+			);
 		}
 		return username;
 	}
 
 	addHookToProcessUser() {
-		BeforeUpdateOrCreateUserFromExternalService.push((serviceName, serviceData/*, options*/) => {
+		BeforeUpdateOrCreateUserFromExternalService.push((
+			serviceName,
+			serviceData /*, options*/
+		) => {
 			if (serviceName !== this.name) {
 				return;
 			}
 
 			if (this.usernameField) {
-				const username = this.getUsername(serviceData);
+				const username = cutUsername(this.getUsername(serviceData));
 
 				const user = RocketChat.models.Users.findOneByUsername(username);
 				if (!user) {
@@ -291,42 +349,52 @@ export class CustomOAuth {
 				}
 
 				// User already created or merged
-				if (user.services && user.services[serviceName] && user.services[serviceName].id === serviceData.id) {
+				if (
+					user.services &&
+					user.services[serviceName] &&
+					user.services[serviceName].id === serviceData.id
+				) {
 					return;
 				}
 
 				if (this.mergeUsers !== true) {
-					throw new Meteor.Error('CustomOAuth', `User with username ${ user.username } already exists`);
+					throw new Meteor.Error(
+						"CustomOAuth",
+						`User with username ${user.username} already exists`
+					);
 				}
 
-				const serviceIdKey = `services.${ serviceName }.id`;
+				const serviceIdKey = `services.${serviceName}.id`;
 				const update = {
 					$set: {
 						[serviceIdKey]: serviceData.id
 					}
 				};
 
-				RocketChat.models.Users.update({_id: user._id}, update);
+				RocketChat.models.Users.update({ _id: user._id }, update);
 			}
 		});
 
-		Accounts.validateNewUser((user) => {
-			if (!user.services || !user.services[this.name] || !user.services[this.name].id) {
+		Accounts.validateNewUser(user => {
+			if (
+				!user.services ||
+				!user.services[this.name] ||
+				!user.services[this.name].id
+			) {
 				return true;
 			}
 
 			if (this.usernameField) {
-				user.username = this.getUsername(user.services[this.name]);
+				user.username = cutUsername(this.getUsername(user.services[this.name]));
 			}
 
 			return true;
 		});
-
 	}
 }
 
-
-const updateOrCreateUserFromExternalService = Accounts.updateOrCreateUserFromExternalService;
+const updateOrCreateUserFromExternalService =
+	Accounts.updateOrCreateUserFromExternalService;
 Accounts.updateOrCreateUserFromExternalService = function(/*serviceName, serviceData, options*/) {
 	for (const hook of BeforeUpdateOrCreateUserFromExternalService) {
 		hook.apply(this, arguments);
