@@ -84,6 +84,18 @@ Template.inviteUsers.helpers({
 	}
 });
 
+const setMembersToUsersOfRoom = templateInstance =>
+	Meteor.call(
+		"getUsersOfRoom",
+		Session.get("openedRoom"),
+		true,
+		(error, users) => {
+			if (users) {
+				templateInstance.members.set(users.records);
+			}
+		}
+	);
+
 Template.inviteUsers.events({
 	...acEvents,
 	"click .rc-tags__tag"({ target }, t) {
@@ -124,7 +136,7 @@ Template.inviteUsers.events({
 				if (err) {
 					return toastr.error(err);
 				}
-				setMembers(instance);
+				setMembersToUsersOfRoom(instance);
 				toastr.success(t("Users_added"));
 				instance.selectedUsers.set([]);
 			}
@@ -145,22 +157,10 @@ Template.inviteUsers.onRendered(function() {
 	});
 });
 
-const setMembers = templateInstance =>
-	Meteor.call(
-		"getUsersOfRoom",
-		Session.get("openedRoom"),
-		true,
-		(error, users) => {
-			if (users) {
-				templateInstance.members.set(users.records);
-			}
-		}
-	);
-
 /* global AutoComplete Deps */
 Template.inviteUsers.onCreated(function() {
 	this.members = new ReactiveVar();
-	setMembers(this);
+	setMembersToUsersOfRoom(this);
 
 	this.selectedUsers = new ReactiveVar([]);
 	const filter = {

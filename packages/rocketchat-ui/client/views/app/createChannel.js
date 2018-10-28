@@ -296,20 +296,24 @@ Template.createChannel.events({
 					if (err.error === "error-invalid-name") {
 						return instance.invalid.set(true);
 					}
-
-					if (!isPrivate) {
-						RocketChat.callbacks.run("aftercreateCombined", {
-							_id: result.rid,
-							name: result.name
-						});
+					if (err.error === "error-duplicate-channel-name") {
+						return instance.inUse.set(true);
 					}
-
-					return FlowRouter.go(
-						isPrivate ? "group" : "channel",
-						{ name: result.name },
-						FlowRouter.current().queryParams
-					);
+					return;
 				}
+
+				if (!isPrivate) {
+					RocketChat.callbacks.run("aftercreateCombined", {
+						_id: result.rid,
+						name: result.name
+					});
+				}
+
+				return FlowRouter.go(
+					isPrivate ? "group" : "channel",
+					{ name: result.name },
+					FlowRouter.current().queryParams
+				);
 			}
 		);
 		return false;
@@ -401,6 +405,7 @@ Template.createChannel.onCreated(function() {
 		rules: [
 			{
 				// @TODO maybe change this 'collection' and/or template
+				collection: "UserAndRoom",
 				subscription: "userAutocomplete",
 				field: "username",
 				matchAll: true,
@@ -413,6 +418,23 @@ Template.createChannel.onCreated(function() {
 			}
 		]
 	});
+
+	// this.firstNode.querySelector('[name=name]').focus();
+	// this.ac.element = this.firstNode.querySelector('[name=users]');
+	// this.ac.$element = $(this.ac.element);
+	this.ac.tmplInst = this;
+});
+
+Template.tokenpass.onCreated(function() {
+	this.data.validations.tokenpass = instance => {
+		const result =
+			RocketChat.settings.get("API_Tokenpass_URL") !== "" &&
+			instance.tokensRequired.get() &&
+			instance.type.get() === "p" &&
+			this.selectedTokens.get().length === 0;
+		this.invalid.set(result);
+		return !result;
+	};
 	this.data.submits.tokenpass = () => ({
 		tokenpass: {
 			require: this.requireAll.get() ? "all" : "any",
