@@ -1,10 +1,10 @@
 Template.contextualBar.events({
-	'click .js-close'(e, t) {
+	"click .js-close"(e, t) {
 		t.tabBar.close();
 	}
 });
 
-Template.contextualBar.onCreated(function () {
+Template.contextualBar.onCreated(function() {
 	this.tabBar = Template.currentData().tabBar;
 });
 

@@ -222,7 +222,7 @@ Template.messagePopup.onCreated(function() {
 		if (template.value.curValue == null) {
 			return;
 		}
-		const value = template.input.value;
+		const { value } = template.input;
 		const caret = getCursorPosition(template.input);
 		let firstPartValue = value.substr(0, caret) || "";
 		const lastPartValue = value.substr(caret);

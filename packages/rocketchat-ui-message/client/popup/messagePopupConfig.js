@@ -115,17 +115,19 @@ const fetchRoomsFromServer = (filterText, records, cb, rid) => {
 
 			const { rooms } = results;
 
-			if (!rooms || rooms.length <= 0) {
-				return;
-			}
-
-			rooms.slice(0, limit).forEach(room => {
-				if (records.length < limit) {
+			rooms.slice(0, 5).forEach(room => {
+				if (records.length < 5) {
 					records.push(room);
 				}
-			});
 
-			return cb && cb(records);
+				rooms.slice(0, limit).forEach(room => {
+					if (records.length < limit) {
+						records.push(room);
+					}
+				});
+
+				return cb && cb(records);
+			});
 		}
 	);
 };
@@ -146,28 +148,26 @@ const addEmojiToRecents = emoji => {
 	}
 };
 
-const emojiSort = recents => {
-	return (a, b) => {
-		let idA = a._id;
-		let idB = a._id;
+const emojiSort = recents => (a, b) => {
+	let idA = a._id;
+	let idB = a._id;
 
-		if (recents.includes(a._id)) {
-			idA = recents.indexOf(a._id) + idA;
-		}
-		if (recents.includes(b._id)) {
-			idB = recents.indexOf(b._id) + idB;
-		}
+	if (recents.includes(a._id)) {
+		idA = recents.indexOf(a._id) + idA;
+	}
+	if (recents.includes(b._id)) {
+		idB = recents.indexOf(b._id) + idB;
+	}
 
-		if (idA < idB) {
-			return -1;
-		}
+	if (idA < idB) {
+		return -1;
+	}
 
-		if (idA > idB) {
-			return 1;
-		}
+	if (idA > idB) {
+		return 1;
+	}
 
-		return 0;
-	};
+	return 0;
 };
 const exactFinalTone = new RegExp("^tone[1-5]:*$");
 const colorBlind = new RegExp("tone[1-5]:*$");
@@ -193,14 +193,13 @@ const getEmojis = function(collection, filter) {
 			const data = collection[key];
 			return { _id, data };
 		})
-		.filter(({ _id }) => {
-			return (
+		.filter(
+			({ _id }) =>
 				regExp.test(_id) &&
 				(exactFinalTone.test(_id.substring(key.length)) ||
 					seeColor.test(key) ||
 					!colorBlind.test(_id))
-			);
-		})
+		)
 		.sort(emojiSort(recents))
 		.slice(0, 10);
 };
@@ -266,6 +265,14 @@ Template.messagePopupConfig.helpers({
 									status: 1
 								},
 								limit: 5 - usernamesAlreadyFetched.length
+							},
+							{
+								fields: {
+									username: 1,
+									name: 1,
+									status: 1
+								},
+								limit: 5 - usernamesAlreadyFetched.length
 							}
 						)
 							.fetch()
@@ -285,19 +292,12 @@ Template.messagePopupConfig.helpers({
 						const newItems = Meteor.users
 							.find(
 								{
-									$and: [
-										{
-											$or: [{ username: filterRegex }, { name: filterRegex }]
-										},
-										{
-											username: {
-												$nin: [
-													user && user.username,
-													...usernamesAlreadyFetched
-												]
-											}
-										}
-									]
+									$or: [{ username: filterRegex }, { name: filterRegex }]
+								},
+								{
+									username: {
+										$nin: [user && user.username, ...usernamesAlreadyFetched]
+									}
 								},
 								{
 									fields: {

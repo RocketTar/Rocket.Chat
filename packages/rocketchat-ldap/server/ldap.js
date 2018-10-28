@@ -355,7 +355,7 @@ export default class LDAP {
 		return result[0];
 	}
 
-	isUserInGroup(username) {
+	isUserInGroup(username, userdn) {
 		if (!this.options.group_filter_enabled) {
 			return true;
 		}
@@ -384,7 +384,10 @@ export default class LDAP {
 		filter.push(")");
 
 		const searchOptions = {
-			filter: filter.join("").replace(/#{username}/g, username),
+			filter: filter
+				.join("")
+				.replace(/#{username}/g, username)
+				.replace(/#{userdn}/g, userdn),
 			scope: "sub"
 		};
 

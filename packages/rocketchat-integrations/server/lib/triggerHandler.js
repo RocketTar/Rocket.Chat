@@ -39,7 +39,7 @@ RocketChat.integrations.triggerHandler = new class RocketChatIntegrationHandler 
 			!RocketChat.integrations.outgoingEvents[record.event].use.channel
 		) {
 			logger.outgoing.debug("The integration doesnt rely on channels.");
-			//We don't use any channels, so it's special ;)
+			// We don't use any channels, so it's special ;)
 			channels = ["__any"];
 		} else if (_.isEmpty(record.channel)) {
 			logger.outgoing.debug(
@@ -187,16 +187,16 @@ RocketChat.integrations.triggerHandler = new class RocketChatIntegrationHandler 
 		}
 	}
 
-	//Trigger is the trigger, nameOrId is a string which is used to try and find a room, room is a room, message is a message, and data contains "user_name" if trigger.impersonateUser is truthful.
+	// Trigger is the trigger, nameOrId is a string which is used to try and find a room, room is a room, message is a message, and data contains "user_name" if trigger.impersonateUser is truthful.
 	sendMessage({ trigger, nameOrId = "", room, message, data }) {
 		let user;
-		//Try to find the user who we are impersonating
+		// Try to find the user who we are impersonating
 		if (trigger.impersonateUser) {
 			user = RocketChat.models.Users.findOneByUsername(data.user_name);
 		}
 
-		//If they don't exist (aka the trigger didn't contain a user) then we set the user based upon the
-		//configured username for the integration since this is required at all times.
+		// If they don't exist (aka the trigger didn't contain a user) then we set the user based upon the
+		// configured username for the integration since this is required at all times.
 		if (!user) {
 			user = RocketChat.models.Users.findOneByUsername(trigger.username);
 		}
@@ -213,7 +213,7 @@ RocketChat.integrations.triggerHandler = new class RocketChatIntegrationHandler 
 			tmpRoom = room;
 		}
 
-		//If no room could be found, we won't be sending any messages but we'll warn in the logs
+		// If no room could be found, we won't be sending any messages but we'll warn in the logs
 		if (!tmpRoom) {
 			logger.outgoing.warn(
 				`The Integration "${
@@ -433,20 +433,20 @@ RocketChat.integrations.triggerHandler = new class RocketChatIntegrationHandler 
 		}
 	}
 
-	eventNameArgumentsToObject() {
+	eventNameArgumentsToObject(...args) {
 		const argObject = {
-			event: arguments[0]
+			event: args[0]
 		};
 
 		switch (argObject.event) {
 			case "sendMessage":
-				if (arguments.length >= 3) {
-					argObject.message = arguments[1];
+				if (args.length >= 3) {
+					argObject.message = args[1];
 					if (RocketChat.settings.get("Hide_Message_Field_In_Logs")) {
 						argObject.message.msg = "***secret***";
 					}
 
-					argObject.room = arguments[2];
+					argObject.room = args[2];
 
 					if (
 						RocketChat.settings.get("Hide_Message_Field_In_Logs") &&
@@ -458,35 +458,35 @@ RocketChat.integrations.triggerHandler = new class RocketChatIntegrationHandler 
 				}
 				break;
 			case "fileUploaded":
-				if (arguments.length >= 2) {
-					const arghhh = arguments[1];
+				if (args.length >= 2) {
+					const arghhh = args[1];
 					argObject.user = arghhh.user;
 					argObject.room = arghhh.room;
 					argObject.message = arghhh.message;
 				}
 				break;
 			case "roomArchived":
-				if (arguments.length >= 3) {
-					argObject.room = arguments[1];
-					argObject.user = arguments[2];
+				if (args.length >= 3) {
+					argObject.room = args[1];
+					argObject.user = args[2];
 				}
 				break;
 			case "roomCreated":
-				if (arguments.length >= 3) {
-					argObject.owner = arguments[1];
-					argObject.room = arguments[2];
+				if (args.length >= 3) {
+					argObject.owner = args[1];
+					argObject.room = args[2];
 				}
 				break;
 			case "roomJoined":
 			case "roomLeft":
-				if (arguments.length >= 3) {
-					argObject.user = arguments[1];
-					argObject.room = arguments[2];
+				if (args.length >= 3) {
+					argObject.user = args[1];
+					argObject.room = args[2];
 				}
 				break;
 			case "userCreated":
-				if (arguments.length >= 2) {
-					argObject.user = arguments[1];
+				if (args.length >= 2) {
+					argObject.user = args[1];
 				}
 				break;
 			default:
@@ -587,15 +587,15 @@ RocketChat.integrations.triggerHandler = new class RocketChatIntegrationHandler 
 		}
 	}
 
-	executeTriggers() {
-		logger.outgoing.debug("Execute Trigger:", arguments[0]);
+	executeTriggers(...args) {
+		logger.outgoing.debug("Execute Trigger:", args[0]);
 
-		const argObject = this.eventNameArgumentsToObject(...arguments);
+		const argObject = this.eventNameArgumentsToObject(...args);
 		const { event, message, room } = argObject;
 
-		//Each type of event should have an event and a room attached, otherwise we
-		//wouldn't know how to handle the trigger nor would we have anywhere to send the
-		//result of the integration
+		// Each type of event should have an event and a room attached, otherwise we
+		// wouldn't know how to handle the trigger nor would we have anywhere to send the
+		// result of the integration
 		if (!event) {
 			return;
 		}
@@ -690,7 +690,7 @@ RocketChat.integrations.triggerHandler = new class RocketChatIntegrationHandler 
 		}
 
 		if (this.triggers.__any) {
-			//For outgoing integration which don't rely on rooms.
+			// For outgoing integration which don't rely on rooms.
 			for (const trigger of Object.values(this.triggers.__any)) {
 				triggersToExecute.push(trigger);
 			}
@@ -744,7 +744,7 @@ RocketChat.integrations.triggerHandler = new class RocketChatIntegrationHandler 
 		);
 
 		let word;
-		//Not all triggers/events support triggerWords
+		// Not all triggers/events support triggerWords
 		if (RocketChat.integrations.outgoingEvents[event].use.triggerWords) {
 			if (trigger.triggerWords && trigger.triggerWords.length > 0) {
 				for (const triggerWord of trigger.triggerWords) {
@@ -915,7 +915,7 @@ RocketChat.integrations.triggerHandler = new class RocketChatIntegrationHandler 
 					request: opts,
 					response: {
 						error,
-						status_code: result ? result.statusCode : undefined, //These values will be undefined to close issues #4175, #5762, and #5896
+						status_code: result ? result.statusCode : undefined, // These values will be undefined to close issues #4175, #5762, and #5896
 						content: result ? result.data : undefined,
 						content_raw: result ? result.content : undefined,
 						headers: result ? result.headers : {}
@@ -1070,7 +1070,7 @@ RocketChat.integrations.triggerHandler = new class RocketChatIntegrationHandler 
 				return;
 			}
 
-			//process outgoing webhook response as a new message
+			// process outgoing webhook response as a new message
 			if (result && this.successResults.includes(result.statusCode)) {
 				if (
 					result &&
@@ -1109,7 +1109,7 @@ RocketChat.integrations.triggerHandler = new class RocketChatIntegrationHandler 
 			);
 		}
 
-		const event = history.event;
+		const { event } = history;
 		const message = RocketChat.models.Messages.findOneById(
 			history.data.message_id
 		);

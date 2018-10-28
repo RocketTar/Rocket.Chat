@@ -42,8 +42,8 @@ Meteor.startup(function() {
 			fields: {
 				status: 1,
 				'settings.preferences.idleTimeLimit': 1,
-				'settings.preferences.enableAutoAway': 1
-			}
+				'settings.preferences.enableAutoAway': 1,
+			},
 		});
 
 		if (!user) {

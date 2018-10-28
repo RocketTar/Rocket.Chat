@@ -1,37 +1,43 @@
 /* globals popover */
-import _ from 'underscore';
+import _ from "underscore";
 
 const commonHelpers = {
 	title() {
 		return t(this.i18nTitle) || this.title;
 	},
 	active() {
-		if (this.template === Template.instance().tabBar.getTemplate() && Template.instance().tabBar.getState() === 'opened') {
-			return 'active';
+		if (
+			this.template === Template.instance().tabBar.getTemplate() &&
+			Template.instance().tabBar.getState() === "opened"
+		) {
+			return "active";
 		}
 	}
 };
 function canShowAddUsersButton(rid) {
 	const canAddToChannel = RocketChat.authz.hasAllPermission(
-		'add-user-to-any-c-room', rid
+		"add-user-to-any-c-room",
+		rid
 	);
 	const canAddToGroup = RocketChat.authz.hasAllPermission(
-		'add-user-to-any-p-room', rid
+		"add-user-to-any-p-room",
+		rid
 	);
 	const canAddToJoinedRoom = RocketChat.authz.hasAllPermission(
-		'add-user-to-joined-room', rid
+		"add-user-to-joined-room",
+		rid
 	);
 	if (
 		!canAddToJoinedRoom &&
 		!canAddToChannel &&
-		Template.instance().tabBar.currentGroup() === 'channel'
+		Template.instance().tabBar.currentGroup() === "channel"
 	) {
 		return false;
 	}
 	if (
 		!canAddToJoinedRoom &&
 		!canAddToGroup &&
-		Template.instance().tabBar.currentGroup() === 'group'
+		Template.instance().tabBar.currentGroup() === "group"
 	) {
 		return false;
 	}
@@ -44,7 +50,7 @@ const filterButtons = (button, anonymous, rid) => {
 	if (button.groups.indexOf(Template.instance().tabBar.currentGroup()) === -1) {
 		return false;
 	}
-	if (button.id === 'addUsers' && !canShowAddUsersButton(rid)) {
+	if (button.id === "addUsers" && !canShowAddUsersButton(rid)) {
 		return false;
 	}
 	return true;
@@ -56,7 +62,11 @@ Template.flexTabBar.helpers({
 	...commonHelpers,
 	buttons() {
 		return RocketChat.TabBar.getButtons().filter(button =>
-			filterButtons(button, Template.instance().anonymous, Template.instance().data && Template.instance().data.rid)
+			filterButtons(
+				button,
+				Template.instance().anonymous,
+				Template.instance().data && Template.instance().data.rid
+			)
 		);
 	},
 	opened() {
@@ -78,30 +88,23 @@ Template.flexTabBar.helpers({
 	}
 });
 
-const viewingUserInfo = template => template
-	.instance()
-	.view
-	.templateInstance()
-	.data
-	.data
-	.userDetail;
+const viewingUserInfo = template =>
+	template.instance().view.templateInstance().data.data.userDetail;
 
-const exitUserInfo = template => template
-	.instance()
-	.view
-	.templateInstance()
-	.data
-	.data
-	.clearUserDetail();
+const exitUserInfo = template =>
+	template
+		.instance()
+		.view.templateInstance()
+		.data.data.clearUserDetail();
 
-const isDirectChat = (rid) =>
-	ChatRoom.findOne(rid, { reactive: false }).t === 'd';
+const isDirectChat = rid =>
+	ChatRoom.findOne(rid, { reactive: false }).t === "d";
 
 const openProfileTab = (e, instance, username) => {
-	const roomData = Session.get(`roomData${Session.get('openedRoom')}`);
+	const roomData = Session.get(`roomData${Session.get("openedRoom")}`);
 
 	if (RocketChat.Layout.isEmbedded()) {
-		fireGlobalEvent('click-user-card-message', { username });
+		fireGlobalEvent("click-user-card-message", { username });
 		e.preventDefault();
 		e.stopPropagation();
 		return;
@@ -111,131 +114,148 @@ const openProfileTab = (e, instance, username) => {
 		instance.setUserDetail(username);
 	}
 
-	instance.tabBar.setTemplate('membersList');
+	instance.tabBar.setTemplate("membersList");
 	instance.tabBar.open();
 };
 
 const commonEvents = {
-	'click .js-action'(e, instance) {
-		$('button', e.currentTarget).blur();
+	"click .js-action"(e, t) {
+		$("button", e.currentTarget).blur();
 		e.preventDefault();
-		const $flexTab = $('.flex-tab-container .flex-tab');
+		const $flexTab = $(".flex-tab-container .flex-tab");
 
 		const rid = Template.instance().data.data.rid;
 
 		if (this.template === "membersList" && isDirectChat(rid)) {
-			Meteor.call('getUsersOfRoom', rid, true, (error, users) => {
+			Meteor.call("getUsersOfRoom", rid, true, (error, users) => {
 				const friendInChat = users.records.filter(
 					user => user.username != Meteor.user().username
 				)[0];
 
-				friendInChat && instance
-				.view
-				.templateInstance()
-				.data
-				.data.setUserDetail(friendInChat.username);
+				friendInChat &&
+					t.view
+						.templateInstance()
+						.data.data.setUserDetail(friendInChat.username);
 			});
-		} else if (this.template === "membersList" &&
+		} else if (
+			this.template === "membersList" &&
 			!isDirectChat(rid) &&
-			viewingUserInfo(Template)) {
+			viewingUserInfo(Template)
+		) {
 			exitUserInfo(Template);
 		}
 
-		if (instance.tabBar.getState() === 'opened' && instance.tabBar.getTemplate() === this.template) {
-			$flexTab.attr('template', '');
-			return instance.tabBar.close();
+		if (
+			t.tabBar.getState() === "opened" &&
+			t.tabBar.getTemplate() === this.template
+		) {
+			$flexTab.attr("template", "");
+			return t.tabBar.close();
 		}
 
-		$flexTab.attr('template', this.template);
-		instance.tabBar.setData({
+		$flexTab.attr("template", this.template);
+		t.tabBar.setData({
 			label: this.i18nTitle,
 			icon: this.icon
 		});
-		instance.tabBar.open(this);
+		t.tabBar.open(this);
 
 		popover.close();
 	}
 };
-const action = function (e, instance) {
-	$('button', e.currentTarget).blur();
+const action = function(e, t) {
+	$("button", e.currentTarget).blur();
 	e.preventDefault();
-	const $flexTab = $('.flex-tab-container .flex-tab');
+	const $flexTab = $(".flex-tab-container .flex-tab");
 
-	if (instance.tabBar.getState() === 'opened' && instance.tabBar.getTemplate() === this.template) {
-		$flexTab.attr('template', '');
-		return instance.tabBar.close();
+	if (
+		t.tabBar.getState() === "opened" &&
+		t.tabBar.getTemplate() === this.template
+	) {
+		$flexTab.attr("template", "");
+		return t.tabBar.close();
 	}
 
-	$flexTab.attr('template', this.template);
-	instance.tabBar.setData({
+	$flexTab.attr("template", this.template);
+	t.tabBar.setData({
 		label: this.i18nTitle,
 		icon: this.icon
 	});
-	instance.tabBar.open(this);
+	t.tabBar.open(this);
 
 	popover.close();
 };
 
 Template.flexTabBar.events({
-	'click .tab-button'(e, instance) {
+	"click .tab-button"(e, t) {
 		e.preventDefault();
-		const $flexTab = $('.flex-tab-container .flex-tab');
+		const $flexTab = $(".flex-tab-container .flex-tab");
 
-		if (instance.tabBar.getState() === 'opened' && instance.tabBar.getTemplate() === this.template) {
-			$flexTab.attr('template', '');
-			return instance.tabBar.close();
+		if (
+			t.tabBar.getState() === "opened" &&
+			t.tabBar.getTemplate() === this.template
+		) {
+			$flexTab.attr("template", "");
+			return t.tabBar.close();
 		}
 
-		$flexTab.attr('template', this.template);
+		$flexTab.attr("template", this.template);
 
-		instance.tabBar.open(this.id);
+		t.tabBar.open(this.id);
 	},
 
-	'click .close-flex-tab'(event, instance) {
-		instance.tabBar.close();
+	"click .close-flex-tab"(event, t) {
+		t.tabBar.close();
 	}
 });
 
-Template.flexTabBar.onCreated(function () {
+Template.flexTabBar.onCreated(function() {
 	this.tabBar = Template.currentData().tabBar;
 });
-
 
 Template.RoomsActionMore.events({
 	...commonEvents
 });
 
-
 Template.RoomsActionMore.helpers({
 	...commonHelpers
 });
 
-Template.RoomsActionMore.onCreated(function () {
+Template.RoomsActionMore.onCreated(function() {
 	this.tabBar = Template.currentData().tabBar;
 });
 
 Template.RoomsActionTab.events({
 	...commonEvents,
-	'click .js-more'(e, instance) {
+	"click .js-more"(e, t) {
 		$(e.currentTarget).blur();
 		e.preventDefault();
-		const buttons = RocketChat.TabBar.getButtons().filter(button => filterButtons(button, instance.anonymous, instance.data.rid));
-		const groups = [{
-			items: (instance.small.get() ? buttons : buttons.slice(RocketChat.TabBar.size)).map(item => {
-				item.name = TAPi18n.__(item.i18nTitle);
-				item.action = action;
-				return item;
-			})
-		}];
+		const buttons = RocketChat.TabBar.getButtons().filter(button =>
+			filterButtons(button, t.anonymous, t.data.rid)
+		);
+		const groups = [
+			{
+				items: (t.small.get()
+					? buttons
+					: buttons.slice(RocketChat.TabBar.size)
+				).map(item => {
+					item.name = TAPi18n.__(item.i18nTitle);
+					item.action = action;
+					return item;
+				})
+			}
+		];
 		const columns = [groups];
 		columns[0] = { groups };
 		const config = {
 			columns,
-			popoverClass: 'message-box',
+			popoverClass: "message-box",
 			data: {
 				rid: this._id,
-				buttons: instance.small.get() ? buttons : buttons.slice(RocketChat.TabBar.size),
-				tabBar: instance.tabBar
+				buttons: t.small.get()
+					? buttons
+					: buttons.slice(RocketChat.TabBar.size),
+				tabBar: t.tabBar
 			},
 			currentTarget: e.currentTarget,
 			offsetHorizontal: -e.currentTarget.clientWidth,
@@ -246,27 +266,35 @@ Template.RoomsActionTab.events({
 	}
 });
 
-Template.RoomsActionTab.onDestroyed(function () {
-	$(window).off('resize', this.refresh);
+Template.RoomsActionTab.onDestroyed(function() {
+	$(window).off("resize", this.refresh);
 });
-Template.RoomsActionTab.onCreated(function () {
-	this.small = new ReactiveVar(window.matchMedia('(max-width: 500px)').matches);
+Template.RoomsActionTab.onCreated(function() {
+	this.small = new ReactiveVar(window.matchMedia("(max-width: 500px)").matches);
 	this.refresh = _.throttle(() => {
-		this.small.set(window.matchMedia('(max-width: 500px)').matches);
+		this.small.set(window.matchMedia("(max-width: 500px)").matches);
 	}, 100);
-	$(window).on('resize', this.refresh);
+	$(window).on("resize", this.refresh);
 	this.tabBar = Template.currentData().tabBar;
 });
 
 Template.RoomsActionTab.helpers({
 	...commonHelpers,
+
 	postButtons() {
-		const toolbar = Session.get('toolbarButtons') || {};
-		return Object.keys(toolbar.buttons || []).map(key => ({ id: key, ...toolbar.buttons[key] }));
+		const toolbar = Session.get("toolbarButtons") || {};
+		return Object.keys(toolbar.buttons || []).map(key => ({
+			id: key,
+			...toolbar.buttons[key]
+		}));
 	},
+
 	active() {
-		if (this.template === Template.instance().tabBar.getTemplate() && Template.instance().tabBar.getState() === 'opened') {
-			return 'active';
+		if (
+			this.template === Template.instance().tabBar.getTemplate() &&
+			Template.instance().tabBar.getState() === "opened"
+		) {
+			return "active";
 		}
 	},
 
@@ -274,8 +302,16 @@ Template.RoomsActionTab.helpers({
 		if (Template.instance().small.get()) {
 			return [];
 		}
-		const buttons = RocketChat.TabBar.getButtons().filter(button => filterButtons(button, Template.instance().anonymous, Template.instance().data.rid));
-		return buttons.length <= RocketChat.TabBar.size ? buttons : buttons.slice(0, RocketChat.TabBar.size);
+		const buttons = RocketChat.TabBar.getButtons().filter(button =>
+			filterButtons(
+				button,
+				Template.instance().anonymous,
+				Template.instance().data.rid
+			)
+		);
+		return buttons.length <= RocketChat.TabBar.size
+			? buttons
+			: buttons.slice(0, RocketChat.TabBar.size);
 	},
 
 	moreButtons() {
@@ -283,7 +319,11 @@ Template.RoomsActionTab.helpers({
 			return true;
 		}
 		const buttons = RocketChat.TabBar.getButtons().filter(button =>
-			filterButtons(button, Template.instance().anonymous, Template.instance().data.rid)
+			filterButtons(
+				button,
+				Template.instance().anonymous,
+				Template.instance().data.rid
+			)
 		);
 		return buttons.length > RocketChat.TabBar.size;
 	}

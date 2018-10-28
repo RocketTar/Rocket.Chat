@@ -32,7 +32,7 @@ const toolbarSearch = {
 		$(".toolbar").css("display", "block");
 		$(selectorSearch).focus();
 		this.shortcut = fromShortcut;
-	}
+	},
 };
 
 this.toolbarSearch = toolbarSearch;
@@ -53,42 +53,34 @@ const getFromServer = (cb, type) => {
 
 			isLoading.set(false);
 
-			if (err) {
-				console.log(err);
-				return false;
+		const resultsFromServer = [];
+		const usersLength = results.users.length;
+		const roomsLength = results.rooms.length;
+
+		if (usersLength) {
+			for (let i = 0; i < usersLength; i++) {
+				resultsFromServer.push({
+					_id: results.users[i]._id,
+					t: 'd',
+					name: results.users[i].username,
+					fname: results.users[i].name,
+				});
 			}
 
-			const resultsFromServer = [];
-			const usersLength = results.users.length;
-			const roomsLength = results.rooms.length;
-
-			if (usersLength) {
-				for (let i = 0; i < usersLength; i++) {
-					resultsFromServer.push({
-						_id: results.users[i]._id,
-						t: "d",
-						name: results.users[i].username,
-						fname: results.users[i].name
-					});
+		if (roomsLength) {
+			for (let i = 0; i < roomsLength; i++) {
+				const alreadyOnClient = resultsFromClient.find((item) => item._id === results.rooms[i]._id);
+				if (alreadyOnClient) {
+					continue;
 				}
 			}
 
-			if (roomsLength) {
-				for (let i = 0; i < roomsLength; i++) {
-					const alreadyOnClient = resultsFromClient.find(
-						item => item._id === results.rooms[i]._id
-					);
-					if (alreadyOnClient) {
-						continue;
-					}
-
-					resultsFromServer.push({
-						_id: results.rooms[i]._id,
-						t: results.rooms[i].t,
-						name: results.rooms[i].name,
-						lastMessage: results.rooms[i].lastMessage
-					});
-				}
+				resultsFromServer.push({
+					_id: results.rooms[i]._id,
+					t: results.rooms[i].t,
+					name: results.rooms[i].name,
+					lastMessage: results.rooms[i].lastMessage,
+				});
 			}
 
 			if (resultsFromServer.length) {
@@ -145,13 +137,13 @@ Template.toolbar.helpers({
 
 				const type = {
 					users: true,
-					rooms: true
+					rooms: true,
 				};
 
 				const query = {
 					rid: {
-						$ne: Session.get("openedRoom")
-					}
+						$ne: Session.get('openedRoom'),
+					},
 				};
 
 				if (!Meteor.userId()) {
@@ -172,17 +164,16 @@ Template.toolbar.helpers({
 					query.t = "d";
 				}
 
-				const searchQuery = new RegExp(RegExp.escape(filterText), "i");
-				query.$or = [{ name: searchQuery }, { fname: searchQuery }];
+				const searchQuery = new RegExp((RegExp.escape(filterText)), 'i');
+				query.$or = [
+					{ name: searchQuery },
+					{ fname: searchQuery },
+				];
 
-				resultsFromClient = collection
-					.find(query, { limit: 20, sort: { unread: -1, ls: -1 } })
-					.fetch();
+				resultsFromClient = collection.find(query, { limit: 20, sort: { unread: -1, ls: -1 } }).fetch();
 
 				const resultsFromClientLength = resultsFromClient.length;
-				const user = Meteor.users.findOne(Meteor.userId(), {
-					fields: { name: 1, username: 1 }
-				});
+				const user = Meteor.users.findOne(Meteor.userId(), { fields: { name: 1, username:1 } });
 				if (user) {
 					usernamesFromClient = [user];
 				}
@@ -210,11 +201,11 @@ Template.toolbar.helpers({
 					FlowRouter.current().queryParams
 				);
 				menu.close();
-			}
+			},
 		};
 
 		return config;
-	}
+	},
 });
 
 Template.toolbar.events({
@@ -263,5 +254,5 @@ Template.toolbar.events({
 		} else {
 			e.preventDefault();
 		}
-	}
+	},
 });

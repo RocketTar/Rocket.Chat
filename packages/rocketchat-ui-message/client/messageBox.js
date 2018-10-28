@@ -40,17 +40,19 @@ function applyMd(e, t) {
 
 	// removes markdown if selected text in inside the same clicked markdown
 	const startPattern = this.pattern.substr(0, this.pattern.indexOf("{{text}}"));
-	const startPatternFound = [...startPattern].reverse().every((char, index) => {
-		return box.value.substr(selectionStart - index - 1, 1) === char;
-	});
+	const startPatternFound = [...startPattern]
+		.reverse()
+		.every(
+			(char, index) => box.value.substr(selectionStart - index - 1, 1) === char
+		);
 
 	if (startPatternFound) {
 		const endPattern = this.pattern.substr(
 			this.pattern.indexOf("{{text}}") + "{{text}}".length
 		);
-		const endPatternFound = [...endPattern].every((char, index) => {
-			return box.value.substr(selectionEnd + index, 1) === char;
-		});
+		const endPatternFound = [...endPattern].every(
+			(char, index) => box.value.substr(selectionEnd + index, 1) === char
+		);
 
 		if (endPatternFound) {
 			box.selectionStart = selectionStart - startPattern.length;
@@ -321,7 +323,7 @@ Template.messageBox.helpers({
 		return RocketChat.Layout.isEmbedded();
 	},
 	isEmojiEnable() {
-		return RocketChat.getUserPreference(Meteor.user(), "useEmojis");
+		return RocketChat.getUserPreference(Meteor.userId(), "useEmojis");
 	},
 	dataReply() {
 		const dataReply = Template.instance().dataReply.get();
@@ -361,7 +363,7 @@ function firefoxPasteUpload(fn) {
 	if (!user || user[1] > 49) {
 		return fn;
 	}
-	return function(event, instance) {
+	return function(event, instance, ...args) {
 		if (
 			(event.originalEvent.ctrlKey || event.originalEvent.metaKey) &&
 			event.keyCode === 86
@@ -409,7 +411,7 @@ function firefoxPasteUpload(fn) {
 				}
 			}, 150);
 		}
-		return fn && fn.apply(this, arguments);
+		return fn && fn.apply(this, [event, instance, ...args]);
 	};
 }
 
@@ -470,7 +472,9 @@ Template.messageBox.events({
 	},
 	"focus .js-input-message"(event, instance) {
 		KonchatNotification.removeRoomNotification(this._id);
-		chatMessages[this._id].input = instance.find(".js-input-message");
+		if (chatMessages[this._id]) {
+			chatMessages[this._id].input = instance.find(".js-input-message");
+		}
 	},
 	"click .js-send"(event, instance) {
 		const input = instance.find(".js-input-message");
@@ -505,18 +509,18 @@ Template.messageBox.events({
 		}
 		const items = [...e.originalEvent.clipboardData.items];
 		const files = items
+			.filter(
+				item => item.kind === "file" && item.type.indexOf("image/") !== -1
+			)
 			.map(item => {
-				if (item.kind === "file" && item.type.indexOf("image/") !== -1) {
-					e.preventDefault();
-					return {
-						file: item.getAsFile(),
-						name: `Clipboard - ${moment().format(
-							RocketChat.settings.get("Message_TimeAndDateFormat")
-						)}`
-					};
-				}
-			})
-			.filter(e => e);
+				e.preventDefault();
+				return {
+					file: item.getAsFile(),
+					name: `Clipboard - ${moment().format(
+						RocketChat.settings.get("Message_TimeAndDateFormat")
+					)}`
+				};
+			});
 		if (files.length) {
 			return fileUpload(files);
 		} else {
@@ -768,7 +772,7 @@ Template.messageBox.events({
 });
 
 Template.messageBox.onRendered(function() {
-	const input = this.find(".js-input-message"); //mssg box
+	const input = this.find(".js-input-message"); // mssg box
 	const self = this;
 	$(input).on("dataChange", () => {
 		const reply = $(input).data("reply");
@@ -788,9 +792,10 @@ Template.messageBox.onRendered(function() {
 });
 
 Template.messageBox.onCreated(function() {
-	this.dataReply = new ReactiveVar(""); //if user is replying to a mssg, this will contain data of the mssg being replied to
+	this.dataReply = new ReactiveVar(""); // if user is replying to a mssg, this will contain data of the mssg being replied to
 	this.isMessageFieldEmpty = new ReactiveVar(true);
 	this.sendIcon = new ReactiveVar(false);
+	RocketChat.messageBox.emit("created", this);
 });
 
 Meteor.startup(function() {
@@ -804,9 +809,7 @@ Meteor.startup(function() {
 			navigator.geolocation &&
 			navigator.geolocation.getCurrentPosition
 		) {
-			const success = position => {
-				return RocketChat.Geolocation.set(position);
-			};
+			const success = position => RocketChat.Geolocation.set(position);
 			const error = error => {
 				console.log("Error getting your geolocation", error);
 				return RocketChat.Geolocation.set(false);

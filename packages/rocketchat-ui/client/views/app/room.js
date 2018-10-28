@@ -67,30 +67,26 @@ const mountPopover = (e, i, outerContext) => {
 		message,
 		context,
 		"menu"
-	).map(item => {
-		return {
-			icon: item.icon,
-			name: t(item.label),
-			type: "message-action",
-			id: item.id,
-			modifier: item.color
-		};
-	});
+	).map(item => ({
+		icon: item.icon,
+		name: t(item.label),
+		type: "message-action",
+		id: item.id,
+		modifier: item.color
+	}));
 
 	if (window.matchMedia("(max-width: 500px)").matches) {
 		const messageItems = RocketChat.MessageAction.getButtons(
 			message,
 			context,
 			"message"
-		).map(item => {
-			return {
-				icon: item.icon,
-				name: t(item.label),
-				type: "message-action",
-				id: item.id,
-				modifier: item.color
-			};
-		});
+		).map(item => ({
+			icon: item.icon,
+			name: t(item.label),
+			type: "message-action",
+			id: item.id,
+			modifier: item.color
+		}));
 
 		menuItems = menuItems.concat(messageItems);
 	}
@@ -238,7 +234,7 @@ Template.room.helpers({
 	},
 
 	embeddedVersion() {
-		RocketChat.Layout.isEmbedded();
+		return RocketChat.Layout.isEmbedded();
 	},
 
 	subscribed() {
@@ -390,8 +386,8 @@ Template.room.helpers({
 		return {
 			_id: this._id,
 			onResize: () => {
-				if (instance.sendToBottomIfNecessary) {
-					instance.sendToBottomIfNecessary();
+				if (instance.sendToBottomIfNecessaryDebounced) {
+					instance.sendToBottomIfNecessaryDebounced();
 				}
 			}
 		};
@@ -509,8 +505,10 @@ Template.room.helpers({
 	},
 
 	messageViewMode() {
-		const user = Meteor.user();
-		const viewMode = RocketChat.getUserPreference(user, "messageViewMode");
+		const viewMode = RocketChat.getUserPreference(
+			Meteor.userId(),
+			"messageViewMode"
+		);
 		const modes = ["", "cozy", "compact"];
 		return modes[viewMode] || modes[0];
 	},
@@ -520,15 +518,13 @@ Template.room.helpers({
 	},
 
 	hideUsername() {
-		const user = Meteor.user();
-		return RocketChat.getUserPreference(user, "hideUsernames")
+		return RocketChat.getUserPreference(Meteor.userId(), "hideUsernames")
 			? "hide-usernames"
 			: undefined;
 	},
 
 	hideAvatar() {
-		const user = Meteor.user();
-		return RocketChat.getUserPreference(user, "hideAvatars")
+		return RocketChat.getUserPreference(Meteor.userId(), "hideAvatars")
 			? "hide-avatars"
 			: undefined;
 	},
@@ -539,12 +535,10 @@ Template.room.helpers({
 
 	toolbarButtons() {
 		const toolbar = Session.get("toolbarButtons") || { buttons: {} };
-		const buttons = Object.keys(toolbar.buttons).map(key => {
-			return {
-				id: key,
-				...toolbar.buttons[key]
-			};
-		});
+		const buttons = Object.keys(toolbar.buttons).map(key => ({
+			id: key,
+			...toolbar.buttons[key]
+		}));
 		return { buttons };
 	},
 
@@ -622,18 +616,16 @@ Template.room.events({
 	},
 
 	"click .messages-container-main"() {
-		const user = Meteor.user();
-
 		if (
 			Template.instance().tabBar.getState() === "opened" &&
-			RocketChat.getUserPreference(user, "hideFlexTab")
+			RocketChat.getUserPreference(Meteor.userId(), "hideFlexTab")
 		) {
 			Template.instance().tabBar.close();
 		}
 	},
 
 	"touchstart .message"(e, t) {
-		const touches = e.originalEvent.touches;
+		const { touches } = e.originalEvent;
 		if (touches && touches.length) {
 			lastTouchX = touches[0].pageX;
 			lastTouchY = touches[0].pagey;
@@ -710,7 +702,7 @@ Template.room.events({
 	},
 
 	"touchmove .message"(e, t) {
-		const touches = e.originalEvent.touches;
+		const { touches } = e.originalEvent;
 		if (touches && touches.length) {
 			const deltaX = Math.abs(lastTouchX - touches[0].pageX);
 			const deltaY = Math.abs(lastTouchY - touches[0].pageY);
@@ -794,7 +786,7 @@ Template.room.events({
 			return;
 		}
 
-		const username = this._arguments[1].u.username;
+		const { username } = this._arguments[1].u;
 
 		openProfileTabOrOpenDM(e, instance, username);
 	},
@@ -815,19 +807,17 @@ Template.room.events({
 		}
 		lastScrollTop = e.target.scrollTop;
 
-		if (
-			(RoomHistoryManager.isLoading(this._id) === false &&
-				RoomHistoryManager.hasMore(this._id) === true) ||
-			RoomHistoryManager.hasMoreNext(this._id) === true
-		) {
-			if (
-				RoomHistoryManager.hasMore(this._id) === true &&
-				e.target.scrollTop === 0
-			) {
+		const isLoading = RoomHistoryManager.isLoading(this._id);
+		const hasMore = RoomHistoryManager.hasMore(this._id);
+		const hasMoreNext = RoomHistoryManager.hasMoreNext(this._id);
+
+		if ((isLoading === false && hasMore === true) || hasMoreNext === true) {
+			if (hasMore === true && e.target.scrollTop === 0) {
 				RoomHistoryManager.getMore(this._id);
 			} else if (
-				RoomHistoryManager.hasMoreNext(this._id) === true &&
-				e.target.scrollTop >= e.target.scrollHeight - e.target.clientHeight
+				hasMoreNext === true &&
+				Math.ceil(e.target.scrollTop) >=
+					e.target.scrollHeight - e.target.clientHeight
 			) {
 				RoomHistoryManager.getMoreNext(this._id);
 			}
@@ -851,15 +841,13 @@ Template.room.events({
 			message,
 			context,
 			"menu"
-		).map(item => {
-			return {
-				icon: item.icon,
-				name: t(item.label),
-				type: "message-action",
-				id: item.id,
-				modifier: item.color
-			};
-		});
+		).map(item => ({
+			icon: item.icon,
+			name: t(item.label),
+			type: "message-action",
+			id: item.id,
+			modifier: item.color
+		}));
 		const [items, deleteItem] = allItems.reduce(
 			(result, value) => (
 				result[value.id === "delete-message" ? 1 : 0].push(value), result
@@ -1110,6 +1098,19 @@ Template.room.events({
 	"click .toggle-hidden"(e) {
 		const id = e.currentTarget.dataset.message;
 		document.querySelector(`#${id}`).classList.toggle("message--ignored");
+	},
+	"click .js-actionButton-sendMessage"(event, instance) {
+		const rid = instance.data._id;
+		const msg = event.currentTarget.value;
+		const msgObject = { _id: Random.id(), rid, msg };
+		if (!msg) {
+			return;
+		}
+		RocketChat.promises
+			.run("onClientBeforeSendMessage", msgObject)
+			.then(msgObject => {
+				Meteor.call("sendMessage", msgObject);
+			});
 	}
 });
 
@@ -1120,7 +1121,7 @@ Template.room.onCreated(function() {
 	lazyloadtick();
 
 	this.showUsersOffline = new ReactiveVar(false);
-	this.atBottom = FlowRouter.getQueryParam("msg") ? false : true;
+	this.atBottom = !FlowRouter.getQueryParam("msg");
 	this.unreadCount = new ReactiveVar(0);
 
 	this.selectable = new ReactiveVar(false);
@@ -1214,7 +1215,7 @@ Template.room.onCreated(function() {
 			handleError(error);
 		}
 
-		return Array.from(results).map(record => {
+		return Array.from(results).forEach(record => {
 			delete record._id;
 			RoomRoles.upsert({ rid: record.rid, "u._id": record.u._id }, record);
 		});
@@ -1276,10 +1277,7 @@ Template.room.onRendered(function() {
 
 	const messageBox = $(".messages-box");
 
-	template.isAtBottom = function(scrollThreshold) {
-		if (scrollThreshold == null) {
-			scrollThreshold = 0;
-		}
+	template.isAtBottom = function(scrollThreshold = 0) {
 		if (
 			wrapper.scrollTop + scrollThreshold >=
 			wrapper.scrollHeight - wrapper.clientHeight
@@ -1323,8 +1321,8 @@ Template.room.onRendered(function() {
 			template.sendToBottomIfNecessaryDebounced()
 		);
 	} else {
-		const observer = new MutationObserver(mutations =>
-			mutations.forEach(() => template.sendToBottomIfNecessaryDebounced())
+		const observer = new MutationObserver(() =>
+			template.sendToBottomIfNecessaryDebounced()
 		);
 
 		observer.observe(wrapperUl, { childList: true });
@@ -1360,7 +1358,7 @@ Template.room.onRendered(function() {
 	});
 
 	$(".flex-tab-bar").on("click", () =>
-		/*e, t*/ Meteor.setTimeout(
+		/* e, t*/ Meteor.setTimeout(
 			() => template.sendToBottomIfNecessaryDebounced(),
 			50
 		)

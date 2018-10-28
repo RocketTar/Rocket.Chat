@@ -2,7 +2,7 @@
 import _ from "underscore";
 import s from "underscore.string";
 
-//TODO: change this global to import
+// TODO: change this global to import
 LoggerManager = new class extends EventEmitter {
 	// eslint-disable-line no-undef
 	constructor() {
@@ -175,10 +175,10 @@ class _Logger {
 		const details = this._getCallerDetails();
 		const detailParts = [];
 		if (
-			details["package"] &&
+			details.package &&
 			(LoggerManager.showPackage === true || options.type === "error")
 		) {
-			detailParts.push(details["package"]);
+			detailParts.push(details.package);
 		}
 		if (LoggerManager.showFileAndLine === true || options.type === "error") {
 			if (details.file != null && details.line != null) {
@@ -249,7 +249,7 @@ class _Logger {
 			.split("?")[0];
 		const packageMatch = match[1].match(/packages\/([^\.\/]+)(?:\/|\.)/);
 		if (packageMatch) {
-			details["package"] = packageMatch[1];
+			details.package = packageMatch[1];
 		}
 		return details;
 	}
@@ -279,9 +279,9 @@ class _Logger {
 		return lines;
 	}
 
-	_log(options) {
+	_log(options, ...args) {
 		if (LoggerManager.enabled === false) {
-			LoggerManager.addToQueue(this, arguments);
+			LoggerManager.addToQueue(this, [options, ...args]);
 			return;
 		}
 		if (options.level == null) {
@@ -358,7 +358,7 @@ SystemLogger = new Logger("System", {
 const StdOut = new class extends EventEmitter {
 	constructor() {
 		super();
-		const write = process.stdout.write;
+		const { write } = process.stdout;
 		this.queue = [];
 		process.stdout.write = (...args) => {
 			write.apply(process.stdout, args);

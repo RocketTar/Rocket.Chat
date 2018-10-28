@@ -1,4 +1,4 @@
-/*globals OAuth*/
+/* globals OAuth*/
 import _ from "underscore";
 
 const logger = new Logger("CustomOAuth");
@@ -116,12 +116,10 @@ export class CustomOAuth {
 
 		// Only send clientID / secret once on header or payload.
 		if (this.tokenSentVia === "header") {
-			allOptions["auth"] = `${config.clientId}:${OAuth.openSecret(
-				config.secret
-			)}`;
+			allOptions.auth = `${config.clientId}:${OAuth.openSecret(config.secret)}`;
 		} else {
-			allOptions["params"]["client_secret"] = OAuth.openSecret(config.secret);
-			allOptions["params"]["client_id"] = config.clientId;
+			allOptions.params.client_secret = OAuth.openSecret(config.secret);
+			allOptions.params.client_id = config.clientId;
 		}
 
 		try {
@@ -143,7 +141,7 @@ export class CustomOAuth {
 		}
 
 		if (data.error) {
-			//if the http response was a json object with an error attribute
+			// if the http response was a json object with an error attribute
 			throw new Error(
 				`Failed to complete OAuth handshake with ${this.name} at ${
 					this.tokenPath
@@ -161,9 +159,9 @@ export class CustomOAuth {
 		};
 
 		if (this.identityTokenSentVia === "header") {
-			headers["Authorization"] = `Bearer ${accessToken}`;
+			headers.Authorization = `Bearer ${accessToken}`;
 		} else {
-			params["access_token"] = accessToken;
+			params.access_token = accessToken;
 		}
 
 		try {
@@ -334,7 +332,7 @@ export class CustomOAuth {
 	addHookToProcessUser() {
 		BeforeUpdateOrCreateUserFromExternalService.push((
 			serviceName,
-			serviceData /*, options*/
+			serviceData /* , options*/
 		) => {
 			if (serviceName !== this.name) {
 				return;
@@ -393,12 +391,13 @@ export class CustomOAuth {
 	}
 }
 
-const updateOrCreateUserFromExternalService =
-	Accounts.updateOrCreateUserFromExternalService;
-Accounts.updateOrCreateUserFromExternalService = function(/*serviceName, serviceData, options*/) {
+const { updateOrCreateUserFromExternalService } = Accounts;
+Accounts.updateOrCreateUserFromExternalService = function(
+	...args /* serviceName, serviceData, options*/
+) {
 	for (const hook of BeforeUpdateOrCreateUserFromExternalService) {
-		hook.apply(this, arguments);
+		hook.apply(this, args);
 	}
 
-	return updateOrCreateUserFromExternalService.apply(this, arguments);
+	return updateOrCreateUserFromExternalService.apply(this, args);
 };
