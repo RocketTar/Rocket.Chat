@@ -115,19 +115,17 @@ const fetchRoomsFromServer = (filterText, records, cb, rid) => {
 
 			const { rooms } = results;
 
-			rooms.slice(0, 5).forEach(room => {
-				if (records.length < 5) {
+			if (!rooms || rooms.length <= 0) {
+				return;
+			}
+
+			rooms.slice(0, limit).forEach(room => {
+				if (records.length < limit) {
 					records.push(room);
 				}
-
-				rooms.slice(0, limit).forEach(room => {
-					if (records.length < limit) {
-						records.push(room);
-					}
-				});
-
-				return cb && cb(records);
 			});
+
+			return cb && cb(records);
 		}
 	);
 };
