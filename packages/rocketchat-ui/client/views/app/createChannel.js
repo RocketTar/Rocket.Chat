@@ -22,7 +22,7 @@ const acEvents = {
 	},
 	'blur [name="users"]'(e, t) {
 		t.ac.onBlur(e);
-	},
+	}
 };
 
 const validateChannelName = name => {
@@ -51,7 +51,7 @@ Template.createChannel.helpers({
 	autocomplete(key) {
 		const instance = Template.instance();
 		const param = instance.ac[key];
-		return typeof param === 'function' ? param.apply(instance.ac) : param;
+		return typeof param === "function" ? param.apply(instance.ac) : param;
 	},
 	items() {
 		return Template.instance().ac.filteredList();
@@ -63,10 +63,14 @@ Template.createChannel.helpers({
 			noMatchTemplate: "userSearchEmpty",
 			modifier(text) {
 				const f = filter.get();
-				return `@${ f.length === 0 ? text : text.replace(new RegExp(filter.get()), function(part) {
-					return `<strong>${ part }</strong>`;
-				}) }`;
-			},
+				return `@${
+					f.length === 0
+						? text
+						: text.replace(new RegExp(filter.get()), function(part) {
+								return `<strong>${part}</strong>`;
+						  })
+				}`;
+			}
 		};
 	},
 	selectedUsers() {
@@ -102,10 +106,13 @@ Template.createChannel.helpers({
 		return Template.instance().encrypted.get();
 	},
 	encryptedDisabled() {
-		return Template.instance().type.get() !== 'p' || Template.instance().broadcast.get();
+		return (
+			Template.instance().type.get() !== "p" ||
+			Template.instance().broadcast.get()
+		);
 	},
 	e2eEnabled() {
-		return RocketChat.settings.get('E2E_Enable');
+		return RocketChat.settings.get("E2E_Enable");
 	},
 	readOnly() {
 		return Template.instance().readOnly.get();
@@ -161,39 +168,49 @@ Template.createChannel.helpers({
 		return {
 			validations: instance.extensions_validations,
 			submits: instance.extensions_submits,
-			change: instance.change,
+			change: instance.change
 		};
 	},
 	roomTypesBeforeStandard() {
-		const orderLow = RocketChat.roomTypes.roomTypesOrder.filter((roomTypeOrder) => roomTypeOrder.identifier === 'c')[0].order;
-		return RocketChat.roomTypes.roomTypesOrder.filter(
-			(roomTypeOrder) => roomTypeOrder.order < orderLow
-		).map(
-			(roomTypeOrder) => RocketChat.roomTypes.roomTypes[roomTypeOrder.identifier]
-		).filter((roomType) => roomType.creationTemplate);
+		const orderLow = RocketChat.roomTypes.roomTypesOrder.filter(
+			roomTypeOrder => roomTypeOrder.identifier === "c"
+		)[0].order;
+		return RocketChat.roomTypes.roomTypesOrder
+			.filter(roomTypeOrder => roomTypeOrder.order < orderLow)
+			.map(
+				roomTypeOrder =>
+					RocketChat.roomTypes.roomTypes[roomTypeOrder.identifier]
+			)
+			.filter(roomType => roomType.creationTemplate);
 	},
 	roomTypesAfterStandard() {
-		const orderHigh = RocketChat.roomTypes.roomTypesOrder.filter((roomTypeOrder) => roomTypeOrder.identifier === 'd')[0].order;
-		return RocketChat.roomTypes.roomTypesOrder.filter(
-			(roomTypeOrder) => roomTypeOrder.order > orderHigh
-		).map(
-			(roomTypeOrder) => RocketChat.roomTypes.roomTypes[roomTypeOrder.identifier]
-		).filter((roomType) => roomType.creationTemplate);
-	},
+		const orderHigh = RocketChat.roomTypes.roomTypesOrder.filter(
+			roomTypeOrder => roomTypeOrder.identifier === "d"
+		)[0].order;
+		return RocketChat.roomTypes.roomTypesOrder
+			.filter(roomTypeOrder => roomTypeOrder.order > orderHigh)
+			.map(
+				roomTypeOrder =>
+					RocketChat.roomTypes.roomTypes[roomTypeOrder.identifier]
+			)
+			.filter(roomType => roomType.creationTemplate);
+	}
 });
 
 Template.createChannel.events({
 	...acEvents,
-	'click .rc-tags__tag'({ target }, t) {
+	"click .rc-tags__tag"({ target }, t) {
 		const { username } = Blaze.getData(target);
-		t.selectedUsers.set(t.selectedUsers.get().filter((user) => user.username !== username));
+		t.selectedUsers.set(
+			t.selectedUsers.get().filter(user => user.username !== username)
+		);
 	},
 	"change [name=setTokensRequired]"(e, t) {
 		t.tokensRequired.set(e.currentTarget.checked);
 		t.change();
 	},
 	'change [name="type"]'(e, t) {
-		t.type.set(e.target.checked ? e.target.value : 'c');
+		t.type.set(e.target.checked ? e.target.value : "c");
 		t.change();
 	},
 	'change [name="broadcast"]'(e, t) {
@@ -246,40 +263,57 @@ Template.createChannel.events({
 		const readOnly = instance.readOnly.get();
 		const broadcast = instance.broadcast.get();
 		const encrypted = instance.encrypted.get();
-		const isPrivate = type === 'p';
+		const isPrivate = type === "p";
 
 		if (instance.invalid.get() || instance.inUse.get()) {
 			return e.target.name.focus();
 		}
-		if (!Object.keys(instance.extensions_validations).map((key) => instance.extensions_validations[key]).reduce((valid, fn) => fn(instance) && valid, true)) {
+		if (
+			!Object.keys(instance.extensions_validations)
+				.map(key => instance.extensions_validations[key])
+				.reduce((valid, fn) => fn(instance) && valid, true)
+		) {
 			return instance.extensions_invalid.set(true);
 		}
 
-		const extraData = Object.keys(instance.extensions_submits)
-			.reduce((result, key) => ({ ...result, ...instance.extensions_submits[key](instance) }), { broadcast, encrypted });
+		const extraData = Object.keys(instance.extensions_submits).reduce(
+			(result, key) => ({
+				...result,
+				...instance.extensions_submits[key](instance)
+			}),
+			{ broadcast, encrypted }
+		);
 
-		Meteor.call(isPrivate ? 'createPrivateGroup' : 'createChannel', name, instance.selectedUsers.get().map((user) => user.username), readOnly, {}, extraData, function(err, result) {
-			if (err) {
-				if (err.error === 'error-invalid-name') {
-					return instance.invalid.set(true);
+		Meteor.call(
+			isPrivate ? "createPrivateGroup" : "createChannel",
+			name,
+			instance.selectedUsers.get().map(user => user.username),
+			readOnly,
+			{},
+			extraData,
+			function(err, result) {
+				if (err) {
+					if (err.error === "error-invalid-name") {
+						return instance.invalid.set(true);
+					}
+
+					if (!isPrivate) {
+						RocketChat.callbacks.run("aftercreateCombined", {
+							_id: result.rid,
+							name: result.name
+						});
+					}
+
+					return FlowRouter.go(
+						isPrivate ? "group" : "channel",
+						{ name: result.name },
+						FlowRouter.current().queryParams
+					);
 				}
-
-				if (!isPrivate) {
-					RocketChat.callbacks.run("aftercreateCombined", {
-						_id: result.rid,
-						name: result.name
-					});
-				}
-
-				return FlowRouter.go(
-					isPrivate ? "group" : "channel",
-					{ name: result.name },
-					FlowRouter.current().queryParams
-				);
 			}
 		);
 		return false;
-	},
+	}
 });
 
 Template.createChannel.onRendered(function() {
@@ -288,7 +322,7 @@ Template.createChannel.onRendered(function() {
 	this.firstNode.querySelector('[name="users"]').focus();
 	this.ac.element = this.firstNode.querySelector('[name="users"]');
 	this.ac.$element = $(this.ac.element);
-	this.ac.$element.on('autocompleteselect', function(e, { item }) {
+	this.ac.$element.on("autocompleteselect", function(e, { item }) {
 		const usersArr = users.get();
 		usersArr.push(item);
 		users.set(usersArr);
@@ -298,10 +332,16 @@ Template.createChannel.onRendered(function() {
 Template.createChannel.onCreated(function() {
 	this.selectedUsers = new ReactiveVar([]);
 
-	const filter = { exceptions :[Meteor.user().username].concat(this.selectedUsers.get().map((u) => u.username)) };
+	const filter = {
+		exceptions: [Meteor.user().username].concat(
+			this.selectedUsers.get().map(u => u.username)
+		)
+	};
 	// this.onViewRead:??y(function() {
 	Tracker.autorun(() => {
-		filter.exceptions = [Meteor.user().username].concat(this.selectedUsers.get().map((u) => u.username));
+		filter.exceptions = [Meteor.user().username].concat(
+			this.selectedUsers.get().map(u => u.username)
+		);
 	});
 	this.extensions_validations = {};
 	this.extensions_submits = {};
@@ -317,7 +357,9 @@ Template.createChannel.onCreated(function() {
 	this.extensions_invalid = new ReactiveVar(false);
 	this.change = _.debounce(() => {
 		let valid = true;
-		Object.keys(this.extensions_validations).map((key) => this.extensions_validations[key]).forEach((f) => (valid = f(this) && valid));
+		Object.keys(this.extensions_validations)
+			.map(key => this.extensions_validations[key])
+			.forEach(f => (valid = f(this) && valid));
 		this.extensions_invalid.set(!valid);
 	}, 300);
 
@@ -329,7 +371,7 @@ Template.createChannel.onCreated(function() {
 		}
 
 		const type = this.type.get();
-		if (type !== 'p') {
+		if (type !== "p") {
 			this.encrypted.set(false);
 		}
 	});
@@ -348,40 +390,37 @@ Template.createChannel.onCreated(function() {
 		this.inUse.set(undefined);
 	}, 1000);
 
-	this.ac = new AutoComplete(
-		{
-			selector:{
-				item: '.rc-popup-list__item',
-				container: '.rc-popup-list__list',
-			},
+	this.ac = new AutoComplete({
+		selector: {
+			item: ".rc-popup-list__item",
+			container: ".rc-popup-list__list"
+		},
 
 		limit: 10,
 		inputDelay: 300,
 		rules: [
 			{
 				// @TODO maybe change this 'collection' and/or template
-					subscription: 'userAutocomplete',
-					field: 'username',
-					matchAll: true,
-					filter,
-					doNotChangeWidth: false,
-					selector(match) {
-						return { term: match };
-					},
-					sort: 'username',
+				subscription: "userAutocomplete",
+				field: "username",
+				matchAll: true,
+				filter,
+				doNotChangeWidth: false,
+				selector(match) {
+					return { term: match };
 				},
-			],
-
-		});
-	};
+				sort: "username"
+			}
+		]
+	});
 	this.data.submits.tokenpass = () => ({
 		tokenpass: {
-			require: this.requireAll.get() ? 'all' : 'any',
-			tokens: this.selectedTokens.get(),
-		},
+			require: this.requireAll.get() ? "all" : "any",
+			tokens: this.selectedTokens.get()
+		}
 	});
-	this.balance = new ReactiveVar('');
-	this.token = new ReactiveVar('');
+	this.balance = new ReactiveVar("");
+	this.token = new ReactiveVar("");
 	this.selectedTokens = new ReactiveVar([]);
 	this.invalid = new ReactiveVar(false);
 	this.requireAll = new ReactiveVar(true);
@@ -396,7 +435,7 @@ Template.tokenpass.helpers({
 	},
 	addIsDisabled() {
 		const { balance, token } = Template.instance();
-		return (balance.get().length && token.get().length) ? '' : 'disabled';
+		return balance.get().length && token.get().length ? "" : "disabled";
 	},
 	tokenRequiment() {
 		return Template.instance().requireAll.get()
@@ -404,25 +443,32 @@ Template.tokenpass.helpers({
 			: t("Require_any_token");
 	},
 	tokenRequimentDescription() {
-		return Template.instance().requireAll.get() ? t('All_added_tokens_will_be_required_by_the_user') : t('At_least_one_added_token_is_required_by_the_user');
-	},
+		return Template.instance().requireAll.get()
+			? t("All_added_tokens_will_be_required_by_the_user")
+			: t("At_least_one_added_token_is_required_by_the_user");
+	}
 });
 
 Template.tokenpass.events({
-	'click [data-button=add]'(e, instance) {
+	"click [data-button=add]"(e, instance) {
 		const { balance, token, selectedTokens } = instance;
 		const text = token.get();
 		const arr = selectedTokens.get();
-		selectedTokens.set([...arr.filter((token) => token.token !== text), { token: text, balance: balance.get() }]);
-		balance.set('');
-		token.set('');
-		[...instance.findAll('input[type=text],input[type=number]')].forEach((el) => el.value = '');
+		selectedTokens.set([
+			...arr.filter(token => token.token !== text),
+			{ token: text, balance: balance.get() }
+		]);
+		balance.set("");
+		token.set("");
+		[...instance.findAll("input[type=text],input[type=number]")].forEach(
+			el => (el.value = "")
+		);
 		instance.data.change();
 		return false;
 	},
-	'click .rc-tags__tag'({ target }, t) {
+	"click .rc-tags__tag"({ target }, t) {
 		const { token } = Blaze.getData(target);
-		t.selectedTokens.set(t.selectedTokens.get().filter((t) => t.token !== token));
+		t.selectedTokens.set(t.selectedTokens.get().filter(t => t.token !== token));
 		t.data.change();
 	},
 	"input [name=tokenMinimumNeededBalance]"(e, i) {
@@ -433,5 +479,5 @@ Template.tokenpass.events({
 	},
 	"change [name=tokenRequireAll]"(e, i) {
 		i.requireAll.set(e.currentTarget.checked);
-	},
+	}
 });
