@@ -543,6 +543,8 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 				if (!RocketChat.authz.hasAllPermission("remove-user", rid)) {
 					return toastr.error(TAPi18n.__("error-not-allowed"));
 				}
+
+				const refreshMembersList = this.refreshMembersList.bind(this);
 				modal.open(
 					{
 						title: t("Are_you_sure"),
@@ -567,7 +569,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 									timer: 2000,
 									showConfirmButton: false
 								});
-								return this.instance.clear();
+								return refreshMembersList();
 							})
 						)
 				);

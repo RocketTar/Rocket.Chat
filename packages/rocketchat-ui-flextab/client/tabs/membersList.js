@@ -340,6 +340,23 @@ Template.membersList.onCreated(function() {
 		return this.userDetail.set(username);
 	};
 
+	this.refreshMembersList = function() {
+		if (this.data.rid == null) {
+			return;
+		}
+		this.loading.set(true);
+		return Meteor.call(
+			"getUsersOfRoom",
+			this.data.rid,
+			this.showAllUsers.get(),
+			(error, users) => {
+				this.users.set(users.records);
+				this.total.set(users.total);
+				return this.loading.set(false);
+			}
+		);
+	};
+
 	this.clearRoomUserDetail = this.data.clearUserDetail;
 
 	return this.autorun(() => {
