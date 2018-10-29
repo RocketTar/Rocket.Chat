@@ -68,8 +68,6 @@
 			{{/if}}
 			{{#if isDecrypting}}
 			<span>******</span>
-			{{else}}
-			{{{body}}}
 			{{/if}}
 			{{#if hasOembed}}
 			{{#each urls}}
@@ -79,6 +77,7 @@
 			{{#each attachments}}
 			{{injectIndex . @index}} {{> messageAttachment}}
 			{{/each}}
+			{{{body}}}
 		</div>
 		{{#with readReceipt}}
 		<div class="read-receipt {{readByEveryone}}">
