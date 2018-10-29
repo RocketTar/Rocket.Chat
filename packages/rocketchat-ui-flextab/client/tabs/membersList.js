@@ -117,8 +117,9 @@ Template.membersList.helpers({
 		if (!roomData) {
 			return "";
 		}
-		return (() =>
-			RocketChat.roomTypes.roomTypes[roomData.t].canAddUser(roomData))();
+		return (() => {
+			return RocketChat.roomTypes.roomTypes[roomData.t].canAddUser(roomData);
+		})();
 	},
 
 	autocompleteSettingsAddUser() {
@@ -222,7 +223,8 @@ Template.membersList.events({
 				RocketChat.roomTypes.roomTypes[room.t].userDetailShowAll(room) || false
 		})
 			.map(
-				action => (typeof action === "function" ? action.call(this) : action)
+				action =>
+					typeof action === "function" ? action.call({ instance }) : action
 			)
 			.filter(
 				action => action && (!action.condition || action.condition.call(this))
@@ -328,7 +330,9 @@ Template.membersList.onCreated(function() {
 
 	this.clearUserDetail = () => {
 		this.showDetail.set(false);
-		return setTimeout(() => this.clearRoomUserDetail(), 500);
+		return setTimeout(() => {
+			return this.clearRoomUserDetail();
+		}, 500);
 	};
 
 	this.showUserDetail = username => {

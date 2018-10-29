@@ -10,21 +10,32 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 		});
 		return sub && sub.ignored && sub.ignored.indexOf(user._id) > -1;
 	};
-	const canSetLeader = () =>
-		RocketChat.authz.hasAllPermission("set-leader", Session.get("openedRoom"));
-	const active = () => user && user.active;
+	const canSetLeader = () => {
+		return RocketChat.authz.hasAllPermission(
+			"set-leader",
+			Session.get("openedRoom")
+		);
+	};
+	const active = () => {
+		return user && user.active;
+	};
 	const hasAdminRole = () => {
 		if (user && user._id) {
 			return RocketChat.authz.hasRole(user._id, "admin");
 		}
 	};
-	const canRemoveUser = () =>
-		RocketChat.authz.hasAllPermission("remove-user", Session.get("openedRoom"));
-	const canSetModerator = () =>
-		RocketChat.authz.hasAllPermission(
+	const canRemoveUser = () => {
+		return RocketChat.authz.hasAllPermission(
+			"remove-user",
+			Session.get("openedRoom")
+		);
+	};
+	const canSetModerator = () => {
+		return RocketChat.authz.hasAllPermission(
 			"set-moderator",
 			Session.get("openedRoom")
 		);
+	};
 	const isDirect = () => {
 		const room = ChatRoom.findOne(Session.get("openedRoom"));
 		return (room != null ? room.t : undefined) === "d";
@@ -63,8 +74,12 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 			});
 		}
 	};
-	const canSetOwner = () =>
-		RocketChat.authz.hasAllPermission("set-owner", Session.get("openedRoom"));
+	const canSetOwner = () => {
+		return RocketChat.authz.hasAllPermission(
+			"set-owner",
+			Session.get("openedRoom")
+		);
+	};
 	const canDirectMessage = username => {
 		const rid = Session.get("openedRoom");
 		const subscription = RocketChat.models.Subscriptions.findOne({ rid });
@@ -74,8 +89,12 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 		const dmIsNotAlreadyOpen = subscription && subscription.name !== username;
 		return canOpenDm && dmIsNotAlreadyOpen;
 	};
-	const canMuteUser = () =>
-		RocketChat.authz.hasAllPermission("mute-user", Session.get("openedRoom"));
+	const canMuteUser = () => {
+		return RocketChat.authz.hasAllPermission(
+			"mute-user",
+			Session.get("openedRoom")
+		);
+	};
 	const userMuted = () => {
 		const room = ChatRoom.findOne(Session.get("openedRoom"));
 		return (
@@ -221,36 +240,6 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 						video: false
 					});
 				}
-			};
-		},
-		function() {
-			if (!isDirect() || isSelf(this.username)) {
-				return;
-			}
-			if (isBlocker()) {
-				return {
-					icon: "mic",
-					name: t("Unblock_User"),
-					action: prevent(getUser, ({ _id }) =>
-						Meteor.call(
-							"unblockUser",
-							{ rid: Session.get("openedRoom"), blocked: _id },
-							success(() => toastr.success(t("User_is_unblocked")))
-						)
-					)
-				};
-			}
-			return {
-				icon: "mic",
-				name: t("Block_User"),
-				modifier: "alert",
-				action: prevent(getUser, ({ _id }) =>
-					Meteor.call(
-						"blockUser",
-						{ rid: Session.get("openedRoom"), blocked: _id },
-						success(() => toastr.success(t("User_is_blocked")))
-					)
-				)
 			};
 		},
 		() => {
@@ -548,7 +537,7 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 			icon: "sign-out",
 			modifier: "alert",
 			name: t("Remove_from_room"),
-			action: prevent(getUser, user => {
+			action: prevent(getUser, function(user) {
 				const rid = Session.get("openedRoom");
 				const room = ChatRoom.findOne(rid);
 				if (!RocketChat.authz.hasAllPermission("remove-user", rid)) {
