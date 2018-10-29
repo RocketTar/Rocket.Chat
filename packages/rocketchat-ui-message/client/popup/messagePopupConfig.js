@@ -8,38 +8,40 @@ const reloadUsersFromRoomMessages = (userId, rid) => {
 	usersFromRoomMessages.remove({});
 	const uniqueMessageUsersControl = {};
 
-	RocketChat.models.Messages.find(
-		{
-			rid,
-			"u.username": { $ne: user.username },
-			t: { $exists: false }
-		},
-		{
-			fields: {
-				"u.username": 1,
-				"u.name": 1,
-				ts: 1
+	if (user) {
+		RocketChat.models.Messages.find(
+			{
+				rid,
+				"u.username": { $ne: user.username },
+				t: { $exists: false }
 			},
-			sort: { ts: -1 }
-		}
-	)
-		.fetch()
-		.filter(({ u: { username } }) => {
-			const notMapped = !uniqueMessageUsersControl[username];
-			uniqueMessageUsersControl[username] = true;
-			return notMapped;
-		})
-		.forEach(({ u: { username, name }, ts }) =>
-			usersFromRoomMessages.upsert(username, {
-				_id: username,
-				username,
-				name,
-				status: Tracker.nonreactive(
-					() => Session.get(`user_${username}_status`) || "offline"
-				),
-				ts
+			{
+				fields: {
+					"u.username": 1,
+					"u.name": 1,
+					ts: 1
+				},
+				sort: { ts: -1 }
+			}
+		)
+			.fetch()
+			.filter(({ u: { username } }) => {
+				const notMapped = !uniqueMessageUsersControl[username];
+				uniqueMessageUsersControl[username] = true;
+				return notMapped;
 			})
-		);
+			.forEach(({ u: { username, name }, ts }) =>
+				usersFromRoomMessages.upsert(username, {
+					_id: username,
+					username,
+					name,
+					status: Tracker.nonreactive(
+						() => Session.get(`user_${username}_status`) || "offline"
+					),
+					ts
+				})
+			);
+	}
 };
 
 Meteor.startup(function() {
