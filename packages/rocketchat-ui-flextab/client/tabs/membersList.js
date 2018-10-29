@@ -297,7 +297,7 @@ Template.membersList.events({
 });
 
 Template.membersList.onCreated(function() {
-	this.showAllUsers = new ReactiveVar(true);
+	this.showAllUsers = new ReactiveVar(false);
 	this.usersLimit = new ReactiveVar(100);
 	this.userDetail = new ReactiveVar();
 	this.showDetail = new ReactiveVar(false);
@@ -334,23 +334,6 @@ Template.membersList.onCreated(function() {
 	this.showUserDetail = username => {
 		this.showDetail.set(username != null);
 		return this.userDetail.set(username);
-	};
-
-	this.refreshMembersList = function() {
-		if (this.data.rid == null) {
-			return;
-		}
-		this.loading.set(true);
-		return Meteor.call(
-			"getUsersOfRoom",
-			this.data.rid,
-			this.showAllUsers.get(),
-			(error, users) => {
-				this.users.set(users.records);
-				this.total.set(users.total);
-				return this.loading.set(false);
-			}
-		);
 	};
 
 	this.clearRoomUserDetail = this.data.clearUserDetail;

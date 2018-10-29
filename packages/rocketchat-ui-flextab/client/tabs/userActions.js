@@ -554,8 +554,6 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 				if (!RocketChat.authz.hasAllPermission("remove-user", rid)) {
 					return toastr.error(TAPi18n.__("error-not-allowed"));
 				}
-
-				const refreshMembersList = this.refreshMembersList.bind(this);
 				modal.open(
 					{
 						title: t("Are_you_sure"),
@@ -568,11 +566,11 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 						closeOnConfirm: false,
 						html: false
 					},
-					function() {
-						return Meteor.call(
+					() =>
+						Meteor.call(
 							"removeUserFromRoom",
 							{ rid, username: user.username },
-							function success() {
+							success(() => {
 								modal.open({
 									title: t("Removed"),
 									text: t("User_has_been_removed_from_s", room.name),
@@ -580,19 +578,12 @@ export const getActions = function({ user, directActions, hideAdminControls }) {
 									timer: 2000,
 									showConfirmButton: false
 								});
-								return refreshMembersList();
-							}
-						);
-					}
+								return this.instance.clear();
+							})
+						)
 				);
 			}),
-			condition: () => {
-				return (
-					directActions &&
-					canRemoveUser() &&
-					user.username !== Meteor.user().username
-				);
-			}
+			condition: () => directActions && canRemoveUser()
 		},
 		{
 			icon: "edit",
