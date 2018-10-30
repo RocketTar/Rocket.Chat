@@ -888,15 +888,23 @@ Template.room.events({
 	"click .attachment"(e) {
 		const getRepliedMessageIdFromAttachment = element => {
 			const links = element.querySelectorAll(".time-link span");
-			return links[links.length - 1]
-				.getAttribute("data-link")
-				.split("?msg=")[1];
+			return links[links.length - 1] &&
+			links[links.length - 1]
+					.getAttribute("data-link")
+					.split("?msg=")[1];
 		};
 
 		const repliedMessageId = getRepliedMessageIdFromAttachment(e.currentTarget);
-		const message = { _id: repliedMessageId, rid: Session.get("openedRoom") };
-		RoomHistoryManager.getSurroundingMessages(message);
-		repliedMessageId && e.stopPropagation();
+
+		if (repliedMessageId !== undefined) {
+			Meteor.call("checkIfMessageExists", repliedMessageId, (error, result) => {
+				if (result.exists) {
+					const message = { _id: repliedMessageId, rid: Session.get("openedRoom") };
+					RoomHistoryManager.getSurroundingMessages(message);
+					repliedMessageId && e.stopPropagation();
+				}
+			});
+		}
 	},
 	"click .mention-link"(e, instance) {
 		if (!Meteor.userId()) {
@@ -1113,6 +1121,10 @@ Template.room.events({
 			});
 	}
 });
+
+const getMessage = query => {
+	
+}
 
 Template.room.onCreated(function() {
 	// this.scrollOnBottom = true

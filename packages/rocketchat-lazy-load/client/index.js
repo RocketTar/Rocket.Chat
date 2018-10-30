@@ -15,7 +15,7 @@ export const fixCordova = function(url) {
 			url = `${ url }&${ query }`;
 		}
 	}
-	if (Meteor.settings.public.sandstorm || url.match(/^(https?:)?\/\//i)) {
+	if (Meteor.settings.public.sandstorm || (url && url.match(/^(https?:)?\/\//i))) {
 		return url;
 	} else if (navigator.userAgent.indexOf('Electron') > -1) {
 		return __meteor_runtime_config__.ROOT_URL_PATH_PREFIX + url;
