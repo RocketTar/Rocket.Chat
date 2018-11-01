@@ -46,6 +46,20 @@ async function renderPdfToCanvas(canvasId, pdfLink) {
 	canvas.style.display = "block";
 }
 
+const isSameDate = (d1, d2) =>
+	d1.getDate() === d2.getDate() &&
+	d1.getMonth() === d2.getMonth() &&
+	d1.getYear() === d2.getYear();
+
+const isToday = date => isSameDate(date, new Date());
+
+const isYesterday = date => {
+	const today = new Date();
+	const yesterday = (() => new Date(today.setDate(today.getDate() - 1)))();
+
+	return isSameDate(date, yesterday);
+};
+
 Template.message.helpers({
 	encodeURI(text) {
 		return encodeURI(text);
@@ -177,7 +191,15 @@ Template.message.helpers({
 		return DateFormat.formatTime(this.ts);
 	},
 	date() {
-		return DateFormat.formatDate(this.ts);
+		let formattedDate = DateFormat.formatDate(this.ts);
+
+		if (isToday(this.ts)) {
+			formattedDate = t("Timestamp_Today");
+		} else if (isYesterday(this.ts)) {
+			formattedDate = t("Timestamp_Yesterday");
+		}
+
+		return formattedDate;
 	},
 	isTemp() {
 		if (this.temp === true) {
