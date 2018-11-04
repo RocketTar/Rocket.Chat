@@ -158,9 +158,11 @@ RocketChat.sendMessage = function(user, message, room, upsert = false) {
 		);
 
 		const isContactAttachment =
-			message.attachments[0]
+			message.attachments 
+			&& message.attachments[0]
+			&& message.attachments[0].type === "contact"
 			&& message.attachments[0].contact_phone_number
-			&& message.attachments[0].contact_phone_number;
+			&& message.attachments[0].contact_name;
 
 		if (!isContactAttachment && typeof result === "object") {
 			message = Object.assign(message, result);

@@ -95,7 +95,7 @@ Template.messageAttachment.helpers({
 		return false;
 	},
 	isContact() {
-		return this.contact_phone_number && this.contact_name;
+		return this.type === "contact";
 	},
 	contactData() {
 		return {
