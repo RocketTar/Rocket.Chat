@@ -48,7 +48,7 @@
 
 						<div class="rc-user-info-details">
 							{{#if roleTags}}
-								<div class="rc-user-info-details__item">
+								<div id="user-info-roles" class="rc-user-info-details__item">
 									<label class="rc-user-info-details__label	">Roles</label>
 									<ul class="chip-container current-user-roles">
 										{{#each roleTags}}
@@ -59,36 +59,36 @@
 							{{/if}}
 							{{#if hasPermission 'view-full-other-user-info'}}
 								{{#if hasEmails}}
-									<div class="rc-user-info-details__item">
+									<div id="user-info-emails" class="rc-user-info-details__item">
 										<label class="rc-user-info-details__label	">Email address</label>
 										{{#each emails}} <a href="mailto:{{address}}" class="rc-user-info-details__info">{{address}}{{#if verified}}&nbsp;<i class="icon-ok success-color"></i>{{/if}}</a> {{/each}}
 									</div>
 								{{/if}}
 								{{#if hasPhone}}
-									<div class="rc-user-info-details__item">
+									<div id="user-info-phone" class="rc-user-info-details__item">
 										<label class="rc-user-info-details__label	">Phone number</label>
 										{{#each phone}} <a href="tel:{{phoneNumber}}" class="rc-user-info-details__info">{{phoneNumber}}</a> {{/each}}
 									</div>
 								{{/if}}
 								{{#if createdAt}}
-									<div class="rc-user-info-details__item">
+									<div id="user-info-created-at" class="rc-user-info-details__item">
 										<label class="rc-user-info-details__label	">{{_ "Created_at"}}</label>
 										<p class="rc-user-info-details__info">{{createdAt}}</p>
 									</div>
-									<div class="rc-user-info-details__item">
+									<div id="user-info-last-login" class="rc-user-info-details__item">
 										<label class="rc-user-info-details__label	">{{_ "Last_login"}}</label>
 										<p class="rc-user-info-details__info">{{lastLogin}}</p>
 									</div>
 								{{/if}}
 								{{#if shouldDisplayReason}}
-									<div class="rc-user-info-details__item">
+									<div id="user-info-reason" class="rc-user-info-details__item">
 										<label class="rc-user-info-details__label	">{{_ "Reason_To_Join"}}</label>
 										<p class="rc-user-info-details__info">{{user.reason}}</p>
 									</div>
 								{{/if}}
 							{{/if}}
 							{{#if utc}}
-								<div class="rc-user-info-details__item">
+								<div id="user-info-timezone" class="rc-user-info-details__item">
 									<label class="rc-user-info-details__label">Timezone</label>
 									<p class="rc-user-info-details__info">{{userTime}} (UTC {{utc}})</p>
 								</div>
