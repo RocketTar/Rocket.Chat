@@ -143,6 +143,19 @@
 			<canvas id="{{fileId}}" class="attachment-canvas"></canvas>
 			{{/unless}}
 			{{/if}}
+			{{#if isContact}}
+			<div class="attachment contact-attachment">
+				{{#with contactData}}
+				<i class="icon-user"></i>
+				<strong>{{_ "Contact"}}</strong>
+				<div class="contact-details">
+					<span class="contact-name">{{contact_name}}</span>
+					|
+					<span class="contact-number">{{contact_phone_number}}</span>
+				</div>
+				{{/with}}
+			</div>
+			{{/if}}
 			{{#if fields}}
 			{{#unless collapsed}}
 			<div class="attachment-fields">

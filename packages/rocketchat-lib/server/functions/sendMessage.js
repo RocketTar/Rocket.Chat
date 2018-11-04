@@ -66,7 +66,9 @@ const validateAttachment = attachment => {
 			image_url: String,
 			audio_url: String,
 			video_url: String,
-			fields: [Match.Any]
+			fields: [Match.Any],
+			contact_phone_number: String,
+			contact_name: String
 		})
 	);
 
@@ -86,7 +88,6 @@ RocketChat.sendMessage = function(user, message, room, upsert = false) {
 	if (!user || !message || !room._id) {
 		return false;
 	}
-
 	check(
 		message,
 		objectMaybeIncluding({
@@ -99,6 +100,7 @@ RocketChat.sendMessage = function(user, message, room, upsert = false) {
 			attachments: [Match.Any]
 		})
 	);
+
 
 	if (Array.isArray(message.attachments) && message.attachments.length) {
 		validateBodyAttachments(message.attachments);
@@ -134,6 +136,7 @@ RocketChat.sendMessage = function(user, message, room, upsert = false) {
 				.getListenerBridge()
 				.messageEvent("IPreMessageSentPrevent", message)
 		);
+
 		if (prevent) {
 			throw new Meteor.Error(
 				"error-app-prevented-sending",
@@ -147,13 +150,19 @@ RocketChat.sendMessage = function(user, message, room, upsert = false) {
 				.getListenerBridge()
 				.messageEvent("IPreMessageSentExtend", message)
 		);
+
 		result = Promise.await(
 			Apps.getBridges()
 				.getListenerBridge()
 				.messageEvent("IPreMessageSentModify", result)
 		);
 
-		if (typeof result === "object") {
+		const isContactAttachment =
+			message.attachments[0]
+			&& message.attachments[0].contact_phone_number
+			&& message.attachments[0].contact_phone_number;
+
+		if (!isContactAttachment && typeof result === "object") {
 			message = Object.assign(message, result);
 		}
 	}
@@ -220,6 +229,7 @@ RocketChat.sendMessage = function(user, message, room, upsert = false) {
 				user._id
 			);
 		});
+
 		return message;
 	}
 };

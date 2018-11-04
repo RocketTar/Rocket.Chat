@@ -93,5 +93,14 @@ Template.messageAttachment.helpers({
 			return true;
 		}
 		return false;
+	},
+	isContact() {
+		return this.contact_phone_number && this.contact_name;
+	},
+	contactData() {
+		return {
+			contact_name: this.contact_name,
+			contact_phone_number: this.contact_phone_number
+		};
 	}
 });
