@@ -102,6 +102,10 @@ class ModelRooms extends RocketChat.models._Base {
 		return this.find(query, options);
 	}
 
+	isUserInRoom(userId, roomId) {
+		return RocketChat.models.Subscriptions.findOneByRoomIdAndUserId(roomId, userId) !== undefined;
+	}
+
 	findBySubscriptionUserId(userId, options) {
 		const data = RocketChat.models.Subscriptions.findByUserId(userId, { fields: { rid: 1 } }).fetch()
 			.map((item) => item.rid);

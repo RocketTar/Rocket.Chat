@@ -8,12 +8,13 @@ WebApp.connectHandlers.use('/file-upload/',	function(req, res, next) {
 		const file = RocketChat.models.Uploads.findOneById(match[1]);
 
 		if (file) {
-			if (!Meteor.settings.public.sandstorm && !FileUpload.requestCanAccessFiles(req)) {
+			if ((!Meteor.settings.public.sandstorm &&
+				!FileUpload.requestCanAccessFiles(req)) ||
+				!FileUpload.canUserAccessFileInRoom(req, file)) {
 				res.writeHead(403);
 				return res.end();
 			}
-
-			res.setHeader('Content-Security-Policy', 'default-src \'none\'');
+			res.setHeader("Content-Security-Policy", "default-src 'none'");
 			return FileUpload.get(file, req, res, next);
 		}
 	}

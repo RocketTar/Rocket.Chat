@@ -204,6 +204,17 @@ Object.assign(FileUpload, {
 		RocketChat.models.Avatars.updateFileNameById(file._id, user.username);
 		// console.log('upload finished ->', file);
 	},
+	canUserAccessFileInRoom({ headers = {}, }, file) {
+
+		if (headers.cookie) {
+			const userId = cookie.get('rc_uid', headers.cookie);
+			if(userId) {
+				const {rid} = file;
+				return RocketChat.models.Rooms.isUserInRoom(userId, rid);
+			}
+		}
+		return false;
+	},
 
 	requestCanAccessFiles({ headers = {}, query = {} }) {
 		if (!RocketChat.settings.get('FileUpload_ProtectFiles')) {
