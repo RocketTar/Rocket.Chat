@@ -62,6 +62,37 @@
 			{{/with}}
 		{{/unless}}
 
+		{{#with settings.classificationLevel}}
+		<div class="rc-user-info__row rc-user-info__row--separator">
+			<div class="rc-switch-double">
+				<div class="rc-switch-double__label {{equal false value 'disabled'}}">
+					{{_"Classification_channel"}}
+					{{_ "Classification_secret"}}{{equal default value '*'}}
+					<div class="rc-switch-double__description">
+						{{_ "Classification_channel_settings_secret"}}
+					</div>
+				</div>
+				<div class="rc-switch rc-switch--blue">
+					<label class="rc-switch__label">
+						<input type="checkbox" class="rc-switch__input js-input-check" 
+							   name="classificationLevel" checked="{{checked}}">
+						<span class="rc-switch__button">
+							<span class="rc-switch__button-inside"></span>
+						</span>
+					</label>
+				</div>
+				<div class="rc-switch-double__label {{equal true value 'disabled'}}">
+					{{_"Classification_channel"}}
+					{{_ "Classification_top_secret"}}
+					<div class="rc-switch-double__description">
+						{{_ "Classification_channel_settings_top_secret"}}
+					</div>
+				</div>
+
+			</div>
+		</div>
+		{{/with}}
+		
 		{{#with settings.t}}
 			<div class="rc-user-info__row rc-user-info__row--separator">
 				<div class="rc-switch-double">

@@ -698,6 +698,18 @@ class ModelRooms extends RocketChat.models._Base {
 		return this.update(query, update);
 	}
 
+	saveClassificationLevelById(_id, value) {
+		const query = { _id };
+
+		const update = {
+			$set: {
+				classificationLevel: value,
+			},
+		};
+
+		return this.update(query, update);
+	}
+
 	setTopicAndTagsById(_id, topic, tags) {
 		const setData = {};
 		const unsetData = {};

@@ -130,12 +130,6 @@ Template.createChannel.helpers({
 	roomTypeIsP() {
 		return Template.instance().type.get() === "p";
 	},
-	isClassificationSecret() {
-		return (
-			Template.instance().classificationLevel.get() ===
-			Template.instance().classificationLevels.secret
-		);
-	},
 	isClassificationTopSecret() {
 		return (
 			Template.instance().classificationLevel.get() ===

@@ -379,6 +379,35 @@ Template.channelSettingsEditing.onCreated(function() {
 				});
 			}
 		},
+		classificationLevel: {
+			type: "boolean",
+			isToggle: true,
+			processing: new ReactiveVar(false),
+			getValue() {
+				const classificationLevels = {
+					topSecret: 1,
+					secret: 2
+				};
+
+				return room.classificationLevel ===
+					classificationLevels.topSecret;
+			},
+			save(value) {
+				const classificationLevels = {
+					topSecret: 1,
+					secret: 2
+				};
+
+				return call(
+					"saveRoomSettings",
+					room._id,
+					RoomSettingsEnum.CLASSIFICATION_LEVEL,
+					value ?
+						classificationLevels.topSecret :
+						classificationLevels.secret
+				).then(() => toastr.success(t("Classification_level_changed_successfully")));
+			}
+		},
 		t: {
 			type: "boolean",
 			// label() {

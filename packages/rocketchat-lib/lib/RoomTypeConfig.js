@@ -10,6 +10,7 @@ export const RoomSettingsEnum = {
 	BROADCAST: 'broadcast',
 	SYSTEM_MESSAGES: 'systemMessages',
 	E2E: 'encrypted',
+	CLASSIFICATION_LEVEL: 'classificationLevel',
 };
 
 export const UiTextContext = {
