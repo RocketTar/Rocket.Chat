@@ -237,12 +237,13 @@ Template.createChannel.events({
 		t.readOnly.set(e.target.checked);
 	},
 	'change [name="classificationLevel"]'(e, t) {
-		setTimeout(()=>{t.classificationLevel.set(
-			e.target.checked
-				? t.classificationLevels.secret
-				: t.classificationLevels.topSecret
-		);
-		t.change();
+		setTimeout(() => {
+			t.classificationLevel.set(
+				e.target.checked
+					? t.classificationLevels.topSecret
+					: t.classificationLevels.secret
+			);
+			t.change();
 		}, 100)
 	},
 	'input [name="users"]'(e, t) {
