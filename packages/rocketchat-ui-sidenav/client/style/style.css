@@ -1,0 +1,16 @@
+.class-lvl-tag {
+	color: black;
+	padding: 0 2px;
+	border-width: 1px;
+	border-radius: 4px;
+	background: #ffffff;
+	font-weight: 500;
+
+	.rtl & {
+		margin-left: 5px;
+	}
+
+	.ltr & {
+		margin-right: 5px;
+	}
+}

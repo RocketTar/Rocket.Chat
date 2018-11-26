@@ -41,6 +41,9 @@
 									{{#if isDirectMessageChat}}
 										{{directMessageCleanName}}
 									{{else}}
+										{{#if isClassificationClassTopSecret}}
+											<span class="class-lvl-tag color-secondary-color border-component-color">{{_"Classification_level_top_secret_abbreviation"}}</span>
+										{{/if}}
 										{{name}}
 									{{/if}}
 								{{else}}

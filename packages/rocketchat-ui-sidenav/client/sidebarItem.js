@@ -43,6 +43,17 @@ Template.sidebarItem.helpers({
 
 			return cleanFname;
 		}
+	},
+	isClassificationClassTopSecret() {
+		const classificationLevels = {
+			topSecret: 1,
+			secret: 2
+		};
+
+		const roomData = Session.get(`roomData${this.rid}`);
+
+		return roomData.classificationLevel &&
+			roomData.classificationLevel === classificationLevels.topSecret;
 	}
 });
 
