@@ -1,11 +1,19 @@
 import _ from 'underscore';
 
+const classificationLevels = {
+	topSecret: 1,
+	secret: 2
+};
+
 Meteor.startup(function() {
 	Meteor.defer(() => {
-		if (!RocketChat.models.Rooms.findOneById('GENERAL')) {
-			RocketChat.models.Rooms.createWithIdTypeAndName('GENERAL', 'c', 'general', {
-				default: true,
-			});
+		if (!RocketChat.models.Rooms.findOneById("GENERAL")) {
+			RocketChat.models.Rooms.createWithIdTypeAndName(
+				"GENERAL",
+				"c",
+				"general",
+				{ default: true },
+				classificationLevel = classificationLevels.secret);
 		}
 
 		if (!RocketChat.models.Users.findOneById('rocket.cat')) {

@@ -756,7 +756,7 @@ class ModelRooms extends RocketChat.models._Base {
 		return room;
 	}
 
-	createWithIdTypeAndName(_id, type, name, extraData) {
+	createWithIdTypeAndName(_id, type, name, extraData, classificationLevel) {
 		const room = {
 			_id,
 			ts: new Date(),
@@ -765,6 +765,7 @@ class ModelRooms extends RocketChat.models._Base {
 			usernames: [],
 			msgs: 0,
 			usersCount: 0,
+			classificationLevel
 		};
 
 		_.extend(room, extraData);

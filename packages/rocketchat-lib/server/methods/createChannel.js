@@ -1,15 +1,40 @@
+const classificationLevels = {
+	topSecret: 1,
+	secret: 2
+};
+
 Meteor.methods({
-	createChannel(name, members, readOnly = false, customFields = {}, extraData = {}) {
+	createChannel(
+		name,
+		members,
+		readOnly = false,
+		customFields = {},
+		extraData = {},
+		classificationLevel = classificationLevels.secret
+	) {
 		check(name, String);
 		check(members, Match.Optional([String]));
 
 		if (!Meteor.userId()) {
-			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'createChannel' });
+			throw new Meteor.Error("error-invalid-user", "Invalid user", {
+				method: "createChannel"
+			});
 		}
 
-		if (!RocketChat.authz.hasPermission(Meteor.userId(), 'create-c')) {
-			throw new Meteor.Error('error-not-allowed', 'Not allowed', { method: 'createChannel' });
+		if (!RocketChat.authz.hasPermission(Meteor.userId(), "create-c")) {
+			throw new Meteor.Error("error-not-allowed", "Not allowed", {
+				method: "createChannel"
+			});
 		}
-		return RocketChat.createRoom('c', name, Meteor.user() && Meteor.user().username, members, readOnly, { customFields, ...extraData });
-	},
+
+		return RocketChat.createRoom(
+			"c",
+			name,
+			Meteor.user() && Meteor.user().username,
+			members,
+			readOnly,
+			{ customFields, ...extraData },
+			classificationLevel
+		);
+	}
 });

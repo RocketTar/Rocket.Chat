@@ -1,27 +1,56 @@
+const classificationLevels = {
+	topSecret: 1,
+	secret: 2
+};
+
 Meteor.methods({
-	createPrivateGroup(name, members, readOnly = false, customFields = {}, extraData = {}) {
+	createPrivateGroup(
+		name,
+		members,
+		readOnly = false,
+		customFields = {},
+		extraData = {},
+		classificationLevel = classificationLevels.secret
+	) {
 		check(name, String);
 		check(members, Match.Optional([String]));
 
 		if (!Meteor.userId()) {
-			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'createPrivateGroup' });
+			throw new Meteor.Error("error-invalid-user", "Invalid user", {
+				method: "createPrivateGroup"
+			});
 		}
 
-		if (!RocketChat.authz.hasPermission(Meteor.userId(), 'create-p')) {
-			throw new Meteor.Error('error-not-allowed', 'Not allowed', { method: 'createPrivateGroup' });
+		if (!RocketChat.authz.hasPermission(Meteor.userId(), "create-p")) {
+			throw new Meteor.Error("error-not-allowed", "Not allowed", {
+				method: "createPrivateGroup"
+			});
 		}
 
 		// validate extra data schema
-		check(extraData, Match.ObjectIncluding({
-			tokenpass: Match.Maybe({
-				require: String,
-				tokens: [{
-					token: String,
-					balance: String,
-				}],
-			}),
-		}));
+		check(
+			extraData,
+			Match.ObjectIncluding({
+				tokenpass: Match.Maybe({
+					require: String,
+					tokens: [
+						{
+							token: String,
+							balance: String
+						}
+					]
+				})
+			})
+		);
 
-		return RocketChat.createRoom('p', name, Meteor.user() && Meteor.user().username, members, readOnly, { customFields, ...extraData });
-	},
+		return RocketChat.createRoom(
+			"p",
+			name,
+			Meteor.user() && Meteor.user().username,
+			members,
+			readOnly,
+			{ customFields, ...extraData },
+			classificationLevel
+		);
+	}
 });
