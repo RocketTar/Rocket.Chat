@@ -66,6 +66,29 @@
 							{{_"Broadcast_channel_Description"}}
 						</span>
 					</div>
+					<div class="rc-switch">
+						<label class="rc-switch__label">
+							<input type="checkbox"
+							 class="rc-switch__input" 
+							 name="classificationLevel"
+							 checked={{isClassificationSecret}}
+							 >
+							<span class="rc-switch__button">
+								<span class="rc-switch__button-inside"></span>
+							</span>
+							<span class="rc-switch__text">
+								{{_"Classification_channel"}}
+								{{#if isClassificationSecret}}
+									{{_"Classification_secret"}}
+								{{else}}
+								{{_"Classification_top_secret"}}
+								{{/if}}
+							</span>
+						</label>
+						<span class="rc-switch__description">
+							{{_"Classification_channel_Description"}}
+						</span>
+					</div>
 				</div>
 				<div class="create-channel__inputs">
 					<div class="rc-input {{#if invalidChannel}}rc-input--error{{/if}}">

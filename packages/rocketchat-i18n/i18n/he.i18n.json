@@ -1440,5 +1440,9 @@
   "Your_password_is_wrong": "הסיסמה שלך היא לא בסדר!",
   "Your_push_was_sent_to_s_devices": "הודעת ה-push נשלח בהצלחה ל-%s מכשירים",
   "Timestamp_Today": "היום",
-  "Timestamp_Yesterday": "אתמול"
+  "Timestamp_Yesterday": "אתמול",
+  "Classification_channel": "סיווג",
+  "Classification_channel_Description": "תוכן ההודעות בקבוצה יהיה עד סודי ביותר",
+  "Classification_top_secret": "סודי ביותר",
+  "Classification_secret": "סודי"
 }

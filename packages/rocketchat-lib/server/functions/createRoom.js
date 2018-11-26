@@ -14,7 +14,7 @@ RocketChat.createRoom = function(
 	members,
 	readOnly,
 	extraData = {},
-	classificationLevel
+	classificationLevel = classificationLevels.secret
 ) {
 	name = s.trim(name);
 	owner = s.trim(owner);

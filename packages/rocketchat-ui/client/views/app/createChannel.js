@@ -130,6 +130,18 @@ Template.createChannel.helpers({
 	roomTypeIsP() {
 		return Template.instance().type.get() === "p";
 	},
+	isClassificationSecret() {
+		return (
+			Template.instance().classificationLevel.get() ===
+			Template.instance().classificationLevels.secret
+		);
+	},
+	isClassificationTopSecret() {
+		return (
+			Template.instance().classificationLevel.get() ===
+			Template.instance().classificationLevels.topSecret
+		);
+	},
 	createIsDisabled() {
 		const instance = Template.instance();
 		const invalid = instance.invalid.get();
@@ -224,6 +236,15 @@ Template.createChannel.events({
 	'change [name="readOnly"]'(e, t) {
 		t.readOnly.set(e.target.checked);
 	},
+	'change [name="classificationLevel"]'(e, t) {
+		setTimeout(()=>{t.classificationLevel.set(
+			e.target.checked
+				? t.classificationLevels.secret
+				: t.classificationLevels.topSecret
+		);
+		t.change();
+		}, 100)
+	},
 	'input [name="users"]'(e, t) {
 		const input = e.target;
 		const position = input.selectionEnd || input.selectionStart;
@@ -264,6 +285,7 @@ Template.createChannel.events({
 		const broadcast = instance.broadcast.get();
 		const encrypted = instance.encrypted.get();
 		const isPrivate = type === "p";
+		const classificationLevel = instance.classificationLevel.get();
 
 		if (instance.invalid.get() || instance.inUse.get()) {
 			return e.target.name.focus();
@@ -291,6 +313,7 @@ Template.createChannel.events({
 			readOnly,
 			{},
 			extraData,
+			classificationLevel,
 			function(err, result) {
 				if (err) {
 					if (err.error === "error-invalid-name") {
@@ -332,9 +355,15 @@ Template.createChannel.onRendered(function() {
 		users.set(usersArr);
 	});
 });
+
 /* global AutoComplete */
 Template.createChannel.onCreated(function() {
 	this.selectedUsers = new ReactiveVar([]);
+
+	this.classificationLevels = {
+		topSecret: 1,
+		secret: 2
+	};
 
 	const filter = {
 		exceptions: [Meteor.user().username].concat(
@@ -356,6 +385,7 @@ Template.createChannel.onCreated(function() {
 	this.readOnly = new ReactiveVar(false);
 	this.broadcast = new ReactiveVar(false);
 	this.encrypted = new ReactiveVar(false);
+	this.classificationLevel = new ReactiveVar(this.classificationLevels.secret);
 	this.inUse = new ReactiveVar(undefined);
 	this.invalid = new ReactiveVar(false);
 	this.extensions_invalid = new ReactiveVar(false);

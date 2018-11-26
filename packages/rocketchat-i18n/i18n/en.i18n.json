@@ -2935,5 +2935,7 @@
   "Your_server_link": "Your server link",
   "Your_workspace_is_ready": "Your workspace is ready to use 🎉",
   "Timestamp_Today": "Today",
-  "Timestamp_Yesterday": "Yesterday"
+  "Timestamp_Yesterday": "Yesterday",
+  "Classification_channel": "Classification Level",
+  "Classification_channel_Description": "Classification level of group"
 }

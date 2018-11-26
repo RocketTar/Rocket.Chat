@@ -17,7 +17,7 @@ const userCanDrop = _id => !RocketChat.roomTypes.readOnly(_id, Meteor.user());
 
 const openProfileTab = (e, instance, username) => {
 	const roomData = Session.get(`roomData${Session.get("openedRoom")}`);
-
+console.log(roomData)
 	if (RocketChat.Layout.isEmbedded()) {
 		fireGlobalEvent("click-user-card-message", { username });
 		e.preventDefault();
