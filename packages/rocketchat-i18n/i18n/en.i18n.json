@@ -2942,6 +2942,6 @@
   "Classification_channel_settings_top_secret": "Content of this group will not exceed classification level 'top secret'",
   "Classification_level_changed_successfully": "Classification level changed successfully!",
   "Classification_level_top_secret_abbreviation": "TS",
-  "Classification_secret":"secret",
-  "Classification_top_secret": "top secret"
+  "Classification_secret":"Secret",
+  "Classification_top_secret": "Top Secret"
 }
