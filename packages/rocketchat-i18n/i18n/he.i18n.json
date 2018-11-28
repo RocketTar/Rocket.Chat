@@ -1448,5 +1448,5 @@
   "Classification_channel_settings_secret": "תכני הקבוצה יהיו עד סיווג סודי בלבד",
   "Classification_channel_settings_top_secret": "תכני הקבוצה יהיו עד סיווג סודי ביותר בלבד",
   "Classification_level_changed_successfully": "רמת סיווג החדר שונה בהצלחה",
-  "Classification_level_top_secret_abbreviation": "ב\"ס"
+  "Classification_level_top_secret_abbreviation":"ס\"ב"
 }
