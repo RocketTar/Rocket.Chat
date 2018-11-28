@@ -999,7 +999,10 @@ Template.channelSettings.events({
 Template.channelSettingsInfo.onCreated(function() {
 	this.room = ChatRoom.findOne(this.data && this.data.rid);
 	this.data.numberOfMembers = new ReactiveVar(null);
-
+	this.classificationLevels = {
+		topSecret: 1,
+		secret: 2
+	};
 	const templateInstance = Template.instance();
 
 	Meteor.call(
@@ -1042,7 +1045,6 @@ Template.channelSettingsInfo.helpers({
 	topic() {
 		return Template.instance().room.topic;
 	},
-
 	channelIcon() {
 		const roomType = Template.instance().room.t;
 		switch (roomType) {
@@ -1078,5 +1080,11 @@ Template.channelSettingsInfo.helpers({
 		return moment
 			.duration(roomMaxAge(Template.instance().room) * 1000 * 60 * 60 * 24)
 			.humanize();
-	}
+	},
+	hasClassification(){
+		return Template.instance().room.classificationLevel;
+	},
+	isTopSecret(){
+		return Template.instance().room.classificationLevel === Template.instance().classificationLevels.topSecret;
+	},
 });

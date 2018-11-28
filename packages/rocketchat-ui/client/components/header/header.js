@@ -77,7 +77,8 @@ Template.header.helpers({
 	roomIcon() {
 		const roomData = Session.get(`roomData${ this._id }`);
 		if (!(roomData != null ? roomData.t : undefined)) { return ''; }
-
+		
+		console.log(roomData);
 		return RocketChat.roomTypes.getIcon(roomData != null ? roomData.t : undefined);
 	},
 
@@ -110,6 +111,15 @@ Template.header.helpers({
 	isSection() {
 		return Template.instance().data.sectionName != null;
 	},
+	isTopSecret(){
+		const roomData = Session.get(`roomData${ this._id }`);
+		return roomData.classificationLevel && roomData.classificationLevel === Template.instance().classificationLevels.topSecret;
+	},
+	classification(){
+		const roomData = Session.get(`roomData${ this._id }`);
+		return roomData.classificationLevel;
+	}
+
 });
 
 Template.header.events({
@@ -144,4 +154,9 @@ Template.header.events({
 
 Template.header.onCreated(function() {
 	this.currentChannel = (this.data && this.data._id && RocketChat.models.Rooms.findOne(this.data._id)) || undefined;
+
+	this.classificationLevels = {
+		topSecret: 1,
+		secret: 2
+	};
 });

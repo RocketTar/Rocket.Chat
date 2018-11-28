@@ -426,6 +426,18 @@
 					</div>
 				</div>
 			{{/if}}
+			{{#if hasClassification}}
+			<label class="rc-user-info__label">
+				{{_ "Classification_channel"}}
+				<div class="rc-user-info__description">
+					{{#if isTopSecret }}
+						{{_ "Classification_top_secret"}}
+					{{else}}
+						{{_ "Classification_secret"}}
+					{{/if}}
+				</div>
+			</label>
+			{{/if}}
 		{{/with}}
 		{{#each channelSettings}}
 			<div class="rc-user-info__row">
