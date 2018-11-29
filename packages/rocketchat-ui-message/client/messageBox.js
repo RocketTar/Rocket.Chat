@@ -243,6 +243,9 @@ Template.messageBox.helpers({
 		}
 		return true;
 	},
+	maxMessageLength() {
+		return RocketChat.settings.get("Message_MaxAllowedSize");
+	},
 	isBlockedOrBlocker() {
 		const roomData = Session.get(`roomData${this._id}`);
 		if (roomData && roomData.t === "d") {
