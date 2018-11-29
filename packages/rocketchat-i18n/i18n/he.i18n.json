@@ -392,6 +392,8 @@
   "Edit": "עריכה",
   "edit-message": "עריכת הודעה",
   "edit-room": "עריכת Room",
+  "edit-channel-classification": "עריכת רמת סיווג של ערוץ",
+  "edit-private-classification": "עריכת רמת סיווג של קבוצה פרטית",
   "Edit_Custom_Field": "ערוך שדה מותאם אישית",
   "Edit_Department": "עריכת מחלקה",
   "Edit_previous_message": "`%s` - ערוך הודעה קודמת",

@@ -6,7 +6,7 @@ Meteor.startup(function() {
 	// then we can define edit-<type>-message instead of edit-message
 	// 2. admin, moderator, and user roles should not be deleted as they are referened in the code.
 	const permissions = [
-		{ _id: 'access-permissions',            roles : ['admin'] },
+		{ _id: 'access-permissions',            roles : ['admin'] }, 
 		{ _id: 'add-oauth-service',             roles : ['admin'] },
 		{ _id: 'add-user-to-joined-room',       roles : ['admin', 'owner', 'moderator'] },
 		{ _id: 'add-user-to-any-c-room',        roles : ['admin'] },
@@ -32,6 +32,8 @@ Meteor.startup(function() {
 		{ _id: 'edit-other-user-password',      roles : ['admin'] },
 		{ _id: 'edit-privileged-setting',       roles : ['admin'] },
 		{ _id: 'edit-room',                     roles : ['admin', 'owner', 'moderator'] },
+		{ _id: 'edit-channel-classification',	roles : ['admin'] },
+		{ _id: 'edit-private-classification',	roles : ['admin', 'owner'] },
 		{ _id: 'edit-room-retention-policy',    roles : ['admin'] },
 		{ _id: 'force-delete-message',          roles : ['admin', 'owner'] },
 		{ _id: 'join-without-join-code',        roles : ['admin', 'bot'] },

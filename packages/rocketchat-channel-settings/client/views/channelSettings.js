@@ -383,6 +383,13 @@ Template.channelSettingsEditing.onCreated(function() {
 			type: "boolean",
 			isToggle: true,
 			processing: new ReactiveVar(false),
+			canView() {
+				return (
+					(RocketChat.authz.hasAllPermission("edit-channel-classification", room._id) && room.t === 'c') ||
+					(RocketChat.authz.hasAllPermission("edit-private-classification", room._id) && room.t === 'p') ||
+					RocketChat.authz.hasRole(Meteor.userId(), "admin")
+				);
+			},
 			getValue() {
 				const classificationLevels = {
 					topSecret: 1,

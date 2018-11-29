@@ -63,6 +63,7 @@
 		{{/unless}}
 
 		{{#with settings.classificationLevel}}
+		{{#if canView}}
 		<div class="rc-user-info__row rc-user-info__row--separator">
 			<div class="rc-switch-double">
 				<div class="rc-switch-double__label {{equal false value 'disabled'}}">
@@ -88,9 +89,9 @@
 						{{_ "Classification_channel_settings_top_secret"}}
 					</div>
 				</div>
-
 			</div>
 		</div>
+		{{/if}}
 		{{/with}}
 		
 		{{#with settings.t}}

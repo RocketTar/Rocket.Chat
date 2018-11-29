@@ -999,6 +999,8 @@
   "edit-privileged-setting": "Edit privileged Setting",
   "edit-privileged-setting_description": "Permission to edit settings",
   "edit-room": "Edit Room",
+  "edit-channel-classification": "Edit channel's classification level",
+  "edit-private-classification": "Edit private group's classification level",
   "edit-room_description": "Permission to edit a room's name, topic, type (private or public status) and status (active or archived)",
   "edit-room-retention-policy": "Edit Room's Retention Policy",
   "edit-room-retention-policy_description": "Permission to edit a room’s retention policy, to automatically delete messages in it",
