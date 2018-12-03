@@ -54,7 +54,7 @@ RocketChat.API.v1.addRoute('rooms.get', { authRequired: true }, {
 });
 
 RocketChat.API.v1.addRoute('rooms.upload/:rid', { authRequired: true }, {
-	post() {
+	post() {		
 		const room = Meteor.call('canAccessRoom', this.urlParams.rid, this.userId);
 
 		if (!room) {
@@ -70,7 +70,7 @@ RocketChat.API.v1.addRoute('rooms.upload/:rid', { authRequired: true }, {
 				if (fieldname !== 'file') {
 					return files.push(new Meteor.Error('invalid-field'));
 				}
-
+				
 				const fileDate = [];
 				file.on('data', (data) => fileDate.push(data));
 
@@ -114,6 +114,43 @@ RocketChat.API.v1.addRoute('rooms.upload/:rid', { authRequired: true }, {
 			delete fields.description;
 
 			RocketChat.API.v1.success(Meteor.call('sendFileMessage', this.urlParams.rid, null, uploadedFile, fields));
+		});
+
+		return RocketChat.API.v1.success();
+	},
+});
+
+RocketChat.API.v1.addRoute('rooms.upload.mobile/:rid', { authRequired: true }, {
+	post() {
+		const room = Meteor.call('canAccessRoom', this.urlParams.rid, this.userId);
+
+		if (!room) {
+			return RocketChat.API.v1.unauthorized();
+		}
+
+
+		const { fileName, file, description, msgData, mimeType } = this.bodyParams;
+		const decodedFile = Buffer.from(file, 'base64');
+
+		if (file.length === 0) {
+			return RocketChat.API.v1.failure('File required');
+		}
+
+		const fileStore = FileUpload.getStore('Uploads');
+
+		const details = {
+			name: fileName,
+			size: decodedFile.length,
+			type: mimeType,
+			rid: this.urlParams.rid,
+			userId: this.userId,
+			description
+		};
+
+		Meteor.runAsUser(this.userId, () => {
+			const uploadedFile = Meteor.wrapAsync(fileStore.insert.bind(fileStore))(details, decodedFile);
+
+			RocketChat.API.v1.success(Meteor.call('sendFileMessage', this.urlParams.rid, null, uploadedFile, msgData));
 		});
 
 		return RocketChat.API.v1.success();
