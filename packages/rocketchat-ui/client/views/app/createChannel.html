@@ -79,14 +79,18 @@
 							<span class="rc-switch__text">
 								{{_"Classification_channel"}}
 								{{#if isClassificationTopSecret}}
-								{{_"Classification_top_secret"}}
+									{{_"Classification_top_secret"}}
 								{{else}}
-								{{_"Classification_secret"}}
+									{{_"Classification_secret"}}
 								{{/if}}
 							</span>
 						</label>
 						<span class="rc-switch__description">
-							{{_"Classification_channel_Description"}}
+							{{#if isClassificationTopSecret}}
+								{{_"Classification_TS_channel_Description"}}
+							{{else}}
+								{{_"Classification_secret_channel_Description"}}
+							{{/if}}
 						</span>
 					</div>
 				</div>
