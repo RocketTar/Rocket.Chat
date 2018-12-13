@@ -162,6 +162,8 @@ Template.channelSettingsEditing.events({
 			/input/i.test(e.type) &&
 			(input.selectionEnd = position + input.value.length - length);
 		this.value.set(modified);
+
+		t.nameInput.set(modified)
 	},
 	"change .js-input-check"(e) {
 		this.value.set(e.currentTarget.checked);
@@ -266,7 +268,7 @@ Template.channelSettingsEditing.onCreated(function() {
 				let nameValidation;
 
 				value = filterNames(value);
-
+				
 				if (
 					!RocketChat.settings.get("UI_Allow_room_names_with_special_chars")
 				) {
@@ -282,9 +284,9 @@ Template.channelSettingsEditing.onCreated(function() {
 						return Promise.reject(
 							toastr.error(
 								t("error-invalid-room-name", {
-									room_name: {
+									room_name: value/*{
 										name: value
-									}
+									}*/
 								})
 							)
 						);
@@ -883,6 +885,8 @@ Template.channelSettingsEditing.onCreated(function() {
 		setting.default = new ReactiveVar(def);
 		setting.value = new ReactiveVar(def);
 	});
+
+	this.nameInput = new ReactiveVar(this.settings.name.getValue());
 });
 
 Template.channelSettingsEditing.helpers({
@@ -967,6 +971,10 @@ Template.channelSettingsEditing.helpers({
 	retentionMaxAgeLabel(label) {
 		const { room } = Template.instance();
 		return TAPi18n.__(label, { max: roomMaxAgeDefault(room.t) });
+	},
+	blankName() {
+		const value = Template.instance().nameInput.get()//document.querySelector("input[name=name]").value;
+		return /^\s*$/.test(value);
 	}
 });
 

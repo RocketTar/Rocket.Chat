@@ -9,16 +9,24 @@
 	<div class="rc-user-info__scroll">
 		{{#with settings.name}}
 			{{#if canView}}
-			<div class="rc-user-info__row">
-				<div class="rc-input">
-					<label class="rc-input__label">
-						<div class="rc-input__title">{{_ label}}{{equal default value '*'}}</div>
-						<div class="rc-input__wrapper">
-							<input type="text" name="name" value="{{value}}" maxlength="40" class="rc-input__element js-input" disabled="{{./disabled}}"/>
-						</div>
-					</label>
+				<div class="rc-user-info__row">
+					<div class="rc-input ">
+						<label class="rc-input__label">
+							<div class="rc-input__title">{{_ label}}{{equal default value '*'}}</div>
+							<div class="rc-input__wrapper">
+								<input type="text" name="name" value="{{value}}" maxlength="40" class="rc-input__element js-input" style="{{#if blankName}}border-color:var(--input-error-color){{/if}}" disabled="{{./disabled}}"/>
+							</div>
+						</label>
+					</div>
 				</div>
-			</div>
+				{{#if blankName}}
+					<div class="rc-input__error" style="margin-top: -17px;">
+						<div class="rc-input__error-icon">
+							{{> icon block="rc-input__error-icon" icon="warning" classes="rc-input__error-icon-svg"}}
+						</div>
+						<div class="rc-input__error-message">{{_ "not_allowed_empty_name"}}</div>
+					</div>
+				{{/if}}
 			{{/if}}
 		{{/with}}
 
@@ -352,7 +360,7 @@
 		<div class="rc-user-info__flex rc-user-info__row rc-user-info__row--separator">
 			<button class="rc-button js-cancel rc-button--outline" title="{{_ 'Cancel'}}">{{_ 'Cancel'}}</button>
 			<button class="rc-button rc-button--secondary js-reset" {{modified 'disabled'}} title="{{_ 'Reset'}}">{{_ 'Reset'}}</button>
-			<button class="rc-button rc-button--primary js-save" {{modified 'disabled'}} title="{{_ 'Save'}}">{{_ 'Save'}}</button>
+			<button class="rc-button rc-button--primary js-save" {{modified 'disabled'}} disabled="{{blankName}}" title="{{_ 'Save'}}">{{_ 'Save'}}</button>
 		</div>
 		<div class="rc-user-info__flex">
 			{{#if canDeleteRoom}}

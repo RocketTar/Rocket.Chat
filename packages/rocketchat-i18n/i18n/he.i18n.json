@@ -467,7 +467,7 @@
   "error-invalid-redirectUri": "redirectUri לא חוקי",
   "error-invalid-role": "תפקיד שגוי",
   "error-invalid-room": "חדר לא חוקי",
-  "error-invalid-room-name": "<strong> %s</strong> אינו שם חדר חוקי, <br/> להשתמש אותיות, מספרים, מקפים וקווים תחתונים בלבד",
+  "error-invalid-room-name": "<strong> __room_name__</strong> אינו שם חדר חוקי, <br/> להשתמש אותיות, מספרים, מקפים וקווים תחתונים בלבד",
   "error-invalid-room-type": "<strong>__type__</strong> אינו סוג חדר חוקי.",
   "error-invalid-settings": "סופקו הגדרות שגויות",
   "error-invalid-subscription": "מינוי שגוי",
@@ -1451,5 +1451,6 @@
   "Classification_channel_settings_secret": "תכני הקבוצה יהיו עד סיווג סודי בלבד",
   "Classification_channel_settings_top_secret": "תכני הקבוצה יהיו עד סיווג סודי ביותר בלבד",
   "Classification_level_changed_successfully": "רמת סיווג החדר שונה בהצלחה",
-  "Classification_level_top_secret_abbreviation": "ס\"ב"
+  "Classification_level_top_secret_abbreviation": "ס\"ב",
+  "not_allowed_empty_name": "שם קבוצה לא יכול להיות ריק."
 }
